@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2026 Rishabh Bijani
+Copyright (c) 2026 Rishabh Bijani and Parush Arora
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
