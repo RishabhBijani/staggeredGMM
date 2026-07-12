@@ -1,0 +1,75 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-"
+)
+```
+
+# staggeredGMM
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/RishabhBijani/staggeredGMM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/RishabhBijani/staggeredGMM/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/RishabhBijani/staggeredGMM/graph/badge.svg)](https://codecov.io/gh/RishabhBijani/staggeredGMM)
+<!-- badges: end -->
+
+`staggeredGMM` estimates cohort x time-specific average treatment effects (CATTs) under staggered treatment adoption by generalized method of moments (GMM). Implements the method proposed by Arora and Bijani (2026). Optional baseline-covariate adjustment via outcome regression is supported for all three.
+
+## Installation
+
+```r
+# install.packages("devtools")
+devtools::install_github("RishabhBijani/staggeredGMM")
+```
+
+## Usage
+
+```{r example}
+library(staggeredGMM)
+
+res <- gmm_staggered_I(sim_panel, y_var = "y", t_var = "year",
+                        id_var = "unit_id", gname = "cohort",
+                        has_nt = TRUE)
+res$ATT_CW
+res$SE_CW
+head(res$catt_out)
+```
+
+## The three estimators
+
+| Function | Weighting |
+|---|---|
+| `gmm_staggered_I()` | Pooled Toeplitz -- one autocovariance sequence shared by every cohort |
+| `gmm_staggered_II()` | Cohort-specific Toeplitz -- each cohort estimates its own sequence |
+| `gmm_staggered_III()` | Fully unrestricted within-cohort covariance -- no stationarity assumed |
+
+## Baseline-covariate adjustment
+
+All three estimators accept an optional `covar` argument: a character vector of baseline (pre-treatment) covariate columns, applying the outcome-regression adjustment of Section 4.5 of the paper. More than one covariate can be supplied at once:
+
+```{r covar_example}
+res_cov <- gmm_staggered_I(sim_panel, y_var = "y", t_var = "year",
+                           id_var = "unit_id", gname = "cohort",
+                           has_nt = TRUE, covar = c("x1", "x2"))
+res_cov$ATT_CW
+```
+
+If a supplied covariate is not actually constant over time for some units, `staggeredGMM` does not error out: it uses each affected unit's first-observed value and raises a warning naming exactly which units were affected.
+
+## Citation
+
+If you use this package, please cite the underlying paper:
+
+> Arora, P. and Bijani, R. (2026). "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach." Ashoka University Economics Discussion Paper 163. <https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf>
+
+See `citation("staggeredGMM")` or `CITATION.cff` for the full citation.
+
+## License
+
+MIT © Rishabh Bijani, Parush Arora

@@ -1,0 +1,99 @@
+---
+title: "Getting started with staggeredGMM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with staggeredGMM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(staggeredGMM)
+```
+
+## Overview
+
+`staggeredGMM` estimates cohort x time-specific average treatment effects (CATTs) under staggered treatment adoption by generalized method of moments (GMM) as proposed by Arora and Bijani (2026).
+
+> Arora, P. and Bijani, R. (2026). "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach." Ashoka University Economics Discussion Paper 163. <https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf>
+
+Only clean comparisons (a treated cohort against a never-treated group, or against a not-yet-treated cohort) are used as moment conditions; already-treated units are never used as controls. The package provides three models:
+
+- `gmm_staggered_I()`: pooled Toeplitz, one autocovariance sequence shared by every cohort.
+- `gmm_staggered_II()`: cohort-specific Toeplitz, each cohort estimates its own sequence from its own residuals.
+- `gmm_staggered_III()`: fully unrestricted within-cohort covariance, no stationarity assumed.
+
+All three return the same cohort-and-time-specific CATTs and an aggregate ATT, differing only in how the weighting matrix that makes the GMM estimator efficient is constructed.
+
+## The Example Data
+
+`sim_panel` is a balanced synthetic panel bundled with the package: 60 units observed over 33 periods, with five treatment cohorts (first treated in periods 10, 13, 16, 19, or 22) and a never-treated group, cohort-heterogeneous dynamic treatment effects, AR(1)-correlated errors, and two baseline covariates, `x1` and `x2`.
+
+```{r data}
+str(sim_panel)
+table(sim_panel$cohort[!duplicated(sim_panel$unit_id)])
+```
+
+## Running An Estimator
+
+Every estimator takes the same core arguments: the outcome, time, unit, and cohort column names, and whether to include never-treated units as an additional control group.
+
+```{r basic}
+res <- gmm_staggered_I(sim_panel, y_var = "y", t_var = "year",
+                        id_var = "unit_id", gname = "cohort",
+                        has_nt = TRUE)
+res$catt_out
+res$ATT_CW
+res$SE_CW
+```
+
+`catt_out` gives one row per (cohort, post-period) CATT. `ATT_CW` aggregates these into a single number, weighted by each cohort's share of treated observations; `SE_CW` is its standard error.
+
+`eff_ok` records whether the iterated GMM reweighting converged:
+
+```{r eff_ok}
+res$eff_ok
+res$n_iter
+```
+
+## Comparing The Three Estimators
+
+```{r compare}
+res2 <- gmm_staggered_II(sim_panel, y_var = "y", t_var = "year",
+                          id_var = "unit_id", gname = "cohort", has_nt = TRUE)
+res3 <- gmm_staggered_III(sim_panel, y_var = "y", t_var = "year",
+                           id_var = "unit_id", gname = "cohort", has_nt = TRUE)
+data.frame(estimator = c("I", "II", "III"),
+           ATT_CW    = c(res$ATT_CW, res2$ATT_CW, res3$ATT_CW),
+           SE_CW     = c(res$SE_CW, res2$SE_CW, res3$SE_CW),
+           eff_ok    = c(res$eff_ok, res2$eff_ok, res3$eff_ok))
+```
+
+## Baseline-Covariate Adjustment
+
+All three estimators accept an optional `covar` argument: a character vector naming baseline (pre-treatment) covariate columns. This applies the outcome-regression adjustment of Section 4.5 of the paper, which allows the parallel-trends assumption to hold only after conditioning on `covar` rather than unconditionally. More than one covariate can be supplied at once:
+
+```{r covar}
+res_cov <- gmm_staggered_I(sim_panel, y_var = "y", t_var = "year",
+                           id_var = "unit_id", gname = "cohort",
+                           has_nt = TRUE, covar = c("x1", "x2"))
+res_cov$ATT_CW
+res_cov$SE_CW
+```
+
+If a supplied covariate turns out not to be actually constant over time for some units (a baseline covariate is assumed to be pre-treatment and fixed, but `staggeredGMM` does not simply trust that), it uses each affected unit's first-observed value and raises a warning naming exactly which units were affected, rather than silently using a value that changes within a unit.
+
+## Warnings And Errors
+
+A handful of conditions raise a warning or an error rather than silently returning a misleading number; see `?gmm_staggered_I` (section "Warnings") for the full list.
+
+## Other Bundled Datasets
+
+Two real-world datasets ship with the package for reference: `beck_banks` (Beck, Levine, and Levkov 2010) and `cook_shah_nregs` (Cook and Shah 2022). See `?beck_banks` and `?cook_shah_nregs` for details.

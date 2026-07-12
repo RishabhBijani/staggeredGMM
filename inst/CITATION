@@ -1,0 +1,10 @@
+bibentry(
+  bibtype     = "TechReport",
+  title       = "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach",
+  author      = c(person("Parush", "Arora"), person("Rishabh", "Bijani")),
+  institution = "Ashoka University",
+  type        = "Economics Discussion Paper",
+  number      = "163",
+  year        = "2026",
+  url         = "https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf"
+)

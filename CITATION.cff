@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite both the software itself and the
+  underlying paper (see preferred-citation below).
+title: staggeredGMM
+type: software
+version: 0.0.0.9000
+date-released: 2026-07-12
+authors:
+  - family-names: Bijani
+    given-names: Rishabh
+    email: rishabhbijani@gmail.com
+  - family-names: Arora
+    given-names: Parush
+    email: parush.arora@ashoka.edu.in
+repository-code: "https://github.com/RishabhBijani/staggeredGMM"
+license: MIT
+preferred-citation:
+  type: report
+  title: "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach"
+  authors:
+    - family-names: Arora
+      given-names: Parush
+    - family-names: Bijani
+      given-names: Rishabh
+  institution:
+    name: "Ashoka University"
+  number: "163"
+  year: 2026
+  month: 5
+  url: "https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf"
+  notes: "Ashoka University Economics Discussion Paper 163"

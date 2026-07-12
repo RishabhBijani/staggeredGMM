@@ -1,0 +1,39 @@
+Package: staggeredGMM
+Title: GMM Estimation of Treatment Effects under Staggered Adoption
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Rishabh", "Bijani", , "rishabhbijani@gmail.com", role = c("aut", "cre")),
+    person("Parush", "Arora", , "parush.arora@ashoka.edu.in", role = "aut")
+    )
+Description: Implements the generalized method of moments (GMM) estimator
+    for cohort-and-time-specific average treatment effects (CATTs) under
+    staggered treatment adoption developed in Arora and Bijani, "Estimating
+    Treatment Effects under Staggered Timing and Non-Spherical Errors".
+    Clean (never-treated or not-yet-treated) two-by-two difference-in-
+    differences comparisons are stacked as GMM moment conditions, reduced to
+    a design-sized minimal basis via a reduced-space singular value
+    decomposition, and weighted by the inverse of an estimated moment
+    covariance under a pooled Toeplitz, cohort-specific Toeplitz, or fully
+    unrestricted within-cohort covariance model. Optional baseline-covariate
+    adjustment via outcome regression is supported for all three estimators.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Imports:
+    data.table,
+    fixest,
+    MASS,
+    stats
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    covr
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+LazyData: true
+URL: https://github.com/RishabhBijani/staggeredGMM
+BugReports: https://github.com/RishabhBijani/staggeredGMM/issues
+Depends: 
+    R (>= 2.10)
+Config/roxygen2/version: 8.0.0
