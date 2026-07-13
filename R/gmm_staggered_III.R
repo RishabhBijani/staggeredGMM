@@ -94,7 +94,7 @@ gmm_staggered_III <- function(data, y_var, t_var, id_var, gname,
   start_yrs   <- sort(unique(cohort_of[cohort_of > 0L & cohort_of <= T_max]))
   K           <- length(start_yrs)
 
-  if (has_nt && sum(cohort_of == 0L) == 0L) {
+  if (has_nt && sum(cohort_of == 0L, na.rm = TRUE) == 0L) {
     stop("has_nt = TRUE requested, but no units have gname == 0 in data. ",
          "Set has_nt = FALSE, or check that never-treated units are coded as 0.",
          call. = FALSE)
@@ -103,11 +103,11 @@ gmm_staggered_III <- function(data, y_var, t_var, id_var, gname,
   all_cohorts <- if (has_nt) c(0L, start_yrs) else start_yrs
 
   N_g_lookup <- setNames(
-    vapply(start_yrs, function(g) sum(cohort_of == g), integer(1L)),
+    vapply(start_yrs, function(g) sum(cohort_of == g, na.rm = TRUE), integer(1L)),
     as.character(start_yrs)
   )
   if (has_nt)
-    N_g_lookup["0"] <- sum(cohort_of == 0L)
+    N_g_lookup["0"] <- sum(cohort_of == 0L, na.rm = TRUE)
 
   Y_mat <- matrix(NA_real_, nrow = N_units, ncol = TT)
   Y_mat[cbind(unit_row, time_idx)] <- Y_raw

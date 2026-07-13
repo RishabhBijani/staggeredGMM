@@ -2,4 +2,5 @@
 ^README\.Rmd$
 ^data-raw$
 ^CITATION\.cff$
-^\.github$
+^run_simulation_campaign\.R$
+^resume_simulation_campaign\.R$
