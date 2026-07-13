@@ -19,7 +19,7 @@ gmm_staggered_I(
 \item{data}{A data frame (or data.table) containing a balanced panel: one
 row per unit-period, with every unit observed in every period.}
 
-\item{y_var}{Character. Name of the outcome variable column in \code{data} --
+\item{y_var}{Character. Name of the outcome variable column in \code{data}:
 the variable whose treatment effect is being estimated.}
 
 \item{t_var}{Character. Name of the calendar-time column in \code{data} (e.g.
@@ -92,14 +92,18 @@ Arora, P. and Bijani, R. (2026). "Efficient Estimation of Treatment
 Effects under Staggered Adoption: GMM Approach." Ashoka University
 Economics Discussion Paper 163.
 \url{https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf}
+
+Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+Staggered Timing and Non-Spherical Errors." Available at SSRN:
+\url{https://ssrn.com/abstract=6558759}.
 }
 \section{Warnings}{
  \code{Q_H} (the incidence matrix mapping clean comparisons
-to CATTs) can be rank deficient under some designs -- most commonly when
+to CATTs) can be rank deficient under some designs, most commonly when
 a cohort has no later cohort available as a not-yet-treated control and
 \code{has_nt = FALSE}. When this happens, the affected CATTs have no clean
 comparison at all, so the fallback reports \verb{beta_hat = 0, SE = 0} for
-exactly these cells -- not a precisely-estimated null -- and a warning
+exactly these cells (not a precisely-estimated null), and a warning
 names the exact affected cells. \code{has_nt = TRUE} with no \code{gname == 0}
 units present in \code{data} is treated as a likely data-coding error and
 raises an error rather than silently proceeding as \code{has_nt = FALSE}. If

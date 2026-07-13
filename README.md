@@ -7,7 +7,7 @@
 
 [![R-CMD-check](https://github.com/RishabhBijani/staggeredGMM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/RishabhBijani/staggeredGMM/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
-coverage](https://codecov.io/gh/RishabhBijani/staggeredGMM/graph/badge.svg)](https://codecov.io/gh/RishabhBijani/staggeredGMM)
+coverage](https://app.codecov.io/gh/RishabhBijani/staggeredGMM/graph/badge.svg)](https://app.codecov.io/gh/RishabhBijani/staggeredGMM)
 <!-- badges: end -->
 
 `staggeredGMM` estimates cohort x time-specific average treatment
@@ -45,15 +45,15 @@ head(res$catt_out)
 #> 6 10 15 -16.92851 0.4391031
 ```
 
-## The three estimators
+## The Three Estimators
 
-| Function              | Weighting                                                             |
-|-----------------------|-----------------------------------------------------------------------|
-| `gmm_staggered_I()`   | Pooled Toeplitz – one autocovariance sequence shared by every cohort  |
-| `gmm_staggered_II()`  | Cohort-specific Toeplitz – each cohort estimates its own sequence     |
-| `gmm_staggered_III()` | Fully unrestricted within-cohort covariance – no stationarity assumed |
+| Function              | Weighting                                                            |
+|-----------------------|----------------------------------------------------------------------|
+| `gmm_staggered_I()`   | Pooled Toeplitz, one autocovariance sequence shared by every cohort  |
+| `gmm_staggered_II()`  | Cohort-specific Toeplitz, each cohort estimates its own sequence     |
+| `gmm_staggered_III()` | Fully unrestricted within-cohort covariance, no stationarity assumed |
 
-## Baseline-covariate adjustment
+## Baseline-Covariate Adjustment
 
 All three estimators accept an optional `covar` argument: a character
 vector of baseline (pre-treatment) covariate columns, applying the
@@ -73,16 +73,28 @@ units, `staggeredGMM` does not error out: it uses each affected unit’s
 first-observed value and raises a warning naming exactly which units
 were affected.
 
+## Other Bundled Datasets
+
+Two real-world datasets ship with the package for reference:
+`beck_banks`, data from Beck et al. (2010), and `cook_shah_nregs`, data
+from Cook and Shah (2022). See `?beck_banks` and `?cook_shah_nregs` for
+details.
+
 ## Citation
 
-If you use this package, please cite the underlying paper:
+If you use this package, please cite both underlying papers:
 
 > Arora, P. and Bijani, R. (2026). “Efficient Estimation of Treatment
 > Effects under Staggered Adoption: GMM Approach.” Ashoka University
 > Economics Discussion Paper 163.
 > <https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf>
 
-See `citation("staggeredGMM")` or `CITATION.cff` for the full citation.
+> Arora, P. and Bijani, R. (2026). “Estimating Treatment Effects under
+> Staggered Timing and Non-Spherical Errors.” Available at SSRN:
+> <https://ssrn.com/abstract=6558759> or
+> <http://dx.doi.org/10.2139/ssrn.6558759>.
+
+See `citation("staggeredGMM")` or `CITATION.cff` for the full citations.
 
 ## License
 

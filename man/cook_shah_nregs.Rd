@@ -5,25 +5,35 @@
 \alias{cook_shah_nregs}
 \title{District-level panel: NREGS rollout and night lights in India}
 \format{
-A data frame with 8666 rows and 20 variables. Core columns:
+A data frame with 8666 rows and 20 variables:
 \describe{
-\item{district_name, state, state_name, st, censuscode, sno}{District
-and state identifiers.}
+\item{sno}{District ID.}
+\item{censuscode}{District census ID.}
+\item{state_name}{State name.}
+\item{district_name}{District name.}
 \item{year}{Calendar year.}
 \item{nregs}{NREGS rollout indicator for this district-year.}
-\item{nr06, nr07, nr08}{Phase-of-rollout indicators (2006/2007/2008).}
-\item{avglt, std_lt, dlt00_05, pre_meanlt}{Night-light intensity
-measures (mean, standard deviation, pre-period change, and
-pre-period mean respectively).}
-\item{wage, outputwage}{Wage measures (missing for some districts).}
-\item{rggvy, state_frac, dep_samp}{Additional covariates from the
-source study (rural-electrification-program indicator, a
-state-level fraction, and a sample-inclusion measure respectively;
-some missing).}
+\item{nr06}{Wave 1 (2006) rollout indicator.}
+\item{nr07}{Wave 2 (2007) rollout indicator.}
+\item{nr08}{Wave 3 (2008) rollout indicator.}
+\item{avglt}{District average nighttime light intensity.}
+\item{std_lt}{Standard deviation of nighttime light intensity.}
+\item{rggvy}{RGGVY (Rajiv Gandhi Grameen Vidyutikaran Yojana rural
+electrification scheme), 10th plan indicator.}
+\item{wage}{Agricultural wage (missing for some districts).}
+\item{outputwage}{Output per agricultural worker (missing for some
+districts).}
+\item{state_frac}{SC/ST (Scheduled Caste/Scheduled Tribe) population
+fraction.}
+\item{dlt00_05}{Mean growth rate of nighttime lights, 2000--2005.}
+\item{pre_meanlt}{Mean level of nighttime lights, 2000--2005.}
+\item{st}{State census code (ST_CEN_CD).}
+\item{state}{State.}
+\item{dep_samp}{Marker for deposit sample (missing for some
+districts).}
 }
-Column definitions here are inferred from naming convention and are not
-independently verified against the source paper's own variable
-definitions table.
+Variable labels are taken directly from the source Stata file's own
+\verb{describe, fullnames} metadata.
 }
 \source{
 Cook, C. Justin, and Manisha Shah. "Aggregate Effects from Public

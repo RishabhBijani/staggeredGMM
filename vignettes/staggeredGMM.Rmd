@@ -24,6 +24,8 @@ library(staggeredGMM)
 
 > Arora, P. and Bijani, R. (2026). "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach." Ashoka University Economics Discussion Paper 163. <https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf>
 
+> Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under Staggered Timing and Non-Spherical Errors." Available at SSRN: <https://ssrn.com/abstract=6558759> or <http://dx.doi.org/10.2139/ssrn.6558759>.
+
 Only clean comparisons (a treated cohort against a never-treated group, or against a not-yet-treated cohort) are used as moment conditions; already-treated units are never used as controls. The package provides three models:
 
 - `gmm_staggered_I()`: pooled Toeplitz, one autocovariance sequence shared by every cohort.

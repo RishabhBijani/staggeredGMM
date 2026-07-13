@@ -1,18 +1,34 @@
 #' Simulated staggered adoption panel
 #'
-#' A balanced synthetic panel used in examples, the vignette, and tests. It is
-#' generated under a staggered adoption design with five treatment cohorts, a
-#' never-treated group, cohort-heterogeneous dynamic treatment effects, AR(1)
-#' errors, and two baseline covariates. The core data-generating process
-#' (fixed effects, AR(1) errors, the cohort-heterogeneous treatment-effect
-#' form) is adapted from `data-raw/sim_panel.R`'s DGP2 backbone; the
-#' covariates are a package-specific addition. True CATTs are deterministic
-#' given (cohort, year). The true aggregate treatment effect is ATT_CW =
-#' -16.793750 (weighted by share of treated observations -- what
-#' [gmm_staggered_I()] and its siblings report). For reference, the
-#' equal-cohort-weighted aggregate is ATT_EW = -15.820203, though this
-#' weighting is not itself returned by the package. See `data-raw/sim_panel.R`
-#' for the exact data-generating process.
+#' A balanced synthetic panel used in examples, the vignette, and tests: 60
+#' units observed over 33 periods, with five treatment cohorts (first
+#' treated in periods 10, 13, 16, 19, or 22; 10 units each) and a
+#' never-treated group (10 units). True CATTs are deterministic given
+#' (cohort, year). The true aggregate treatment effect is ATT_CW =
+#' -16.793750 (weighted by share of treated observations, which is what
+#' [gmm_staggered_I()] and its siblings report).
+#'
+#' @details The data-generating process, for unit \eqn{i} in cohort
+#'   \eqn{g_i} at period \eqn{t}:
+#'   \deqn{y_{it} = \alpha_i + \lambda_t + \tau_{it} + x_{1i}\theta_{1t} +
+#'   x_{2i}\theta_{2t} + \varepsilon_{it}}
+#'   \itemize{
+#'     \item \eqn{\alpha_i \sim N(0, 1)}: unit fixed effect.
+#'     \item \eqn{\lambda_t \sim N(0, 1)}: period fixed effect.
+#'     \item \eqn{\tau_{it} = \beta_{g_i}(1 + r_{g_i})^{t - g_i}} for
+#'       \eqn{t \ge g_i} (0 otherwise): the cohort-heterogeneous, dynamic
+#'       treatment effect, with \eqn{\beta = (-16, -12, -10, -9, -2)} and
+#'       \eqn{r = (0.01, 0.04, 0.08, 0.10, 0.07)} for cohorts
+#'       \eqn{(10, 13, 16, 19, 22)} respectively.
+#'     \item \eqn{\varepsilon_{it}}: AR(1)-correlated across \eqn{t} within
+#'       each unit, with autocorrelation \eqn{\rho = 0.5}.
+#'     \item \eqn{x_{1i}}, \eqn{x_{2i}}: the baseline covariates below,
+#'       each with a cohort-correlated mean and a linear-in-time loading
+#'       (\eqn{\theta_{1t}}, \eqn{\theta_{2t}}), so an unconditional DiD is
+#'       genuinely confounded by them.
+#'   }
+#'   `set.seed(312844)` is used throughout. See `data-raw/sim_panel.R` for
+#'   the exact implementation.
 #'
 #' @format A data frame with 1980 rows and 6 variables:
 #' \describe{
@@ -26,8 +42,12 @@
 #'   \item{x2}{A baseline (pre-treatment) binary covariate, for
 #'     multiple-covariate `covar` examples.}
 #' }
-#' @source Simulated for Arora and Bijani, "Estimating Treatment Effects
-#'   under Staggered Timing and Non-Spherical Errors".
+#' @source Simulated for Arora, P. and Bijani, R. (2026). "Efficient
+#'   Estimation of Treatment Effects under Staggered Adoption: GMM
+#'   Approach." Ashoka University Economics Discussion Paper 163; and
+#'   Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+#'   Staggered Timing and Non-Spherical Errors." Available at SSRN:
+#'   <https://ssrn.com/abstract=6558759>.
 "sim_panel"
 
 #' State-level panel: bank deregulation and inequality
@@ -60,25 +80,35 @@
 #' effects of India's National Rural Employment Guarantee Scheme (NREGS) on
 #' local economic activity, proxied by satellite night-light intensity.
 #'
-#' @format A data frame with 8666 rows and 20 variables. Core columns:
+#' @format A data frame with 8666 rows and 20 variables:
 #' \describe{
-#'   \item{district_name, state, state_name, st, censuscode, sno}{District
-#'     and state identifiers.}
+#'   \item{sno}{District ID.}
+#'   \item{censuscode}{District census ID.}
+#'   \item{state_name}{State name.}
+#'   \item{district_name}{District name.}
 #'   \item{year}{Calendar year.}
 #'   \item{nregs}{NREGS rollout indicator for this district-year.}
-#'   \item{nr06, nr07, nr08}{Phase-of-rollout indicators (2006/2007/2008).}
-#'   \item{avglt, std_lt, dlt00_05, pre_meanlt}{Night-light intensity
-#'     measures (mean, standard deviation, pre-period change, and
-#'     pre-period mean respectively).}
-#'   \item{wage, outputwage}{Wage measures (missing for some districts).}
-#'   \item{rggvy, state_frac, dep_samp}{Additional covariates from the
-#'     source study (rural-electrification-program indicator, a
-#'     state-level fraction, and a sample-inclusion measure respectively;
-#'     some missing).}
+#'   \item{nr06}{Wave 1 (2006) rollout indicator.}
+#'   \item{nr07}{Wave 2 (2007) rollout indicator.}
+#'   \item{nr08}{Wave 3 (2008) rollout indicator.}
+#'   \item{avglt}{District average nighttime light intensity.}
+#'   \item{std_lt}{Standard deviation of nighttime light intensity.}
+#'   \item{rggvy}{RGGVY (Rajiv Gandhi Grameen Vidyutikaran Yojana rural
+#'     electrification scheme), 10th plan indicator.}
+#'   \item{wage}{Agricultural wage (missing for some districts).}
+#'   \item{outputwage}{Output per agricultural worker (missing for some
+#'     districts).}
+#'   \item{state_frac}{SC/ST (Scheduled Caste/Scheduled Tribe) population
+#'     fraction.}
+#'   \item{dlt00_05}{Mean growth rate of nighttime lights, 2000--2005.}
+#'   \item{pre_meanlt}{Mean level of nighttime lights, 2000--2005.}
+#'   \item{st}{State census code (ST_CEN_CD).}
+#'   \item{state}{State.}
+#'   \item{dep_samp}{Marker for deposit sample (missing for some
+#'     districts).}
 #' }
-#' Column definitions here are inferred from naming convention and are not
-#' independently verified against the source paper's own variable
-#' definitions table.
+#' Variable labels are taken directly from the source Stata file's own
+#' `describe, fullnames` metadata.
 #' @source Cook, C. Justin, and Manisha Shah. "Aggregate Effects from Public
 #'   Works: Evidence from India." *The Review of Economics and Statistics*
 #'   104, no. 4 (2022): 797-806. <https://doi.org/10.1162/rest_a_00993>.

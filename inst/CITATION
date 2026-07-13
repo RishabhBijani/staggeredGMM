@@ -1,3 +1,5 @@
+citHeader("To cite staggeredGMM, please cite both papers:")
+
 bibentry(
   bibtype     = "TechReport",
   title       = "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach",
@@ -7,4 +9,13 @@ bibentry(
   number      = "163",
   year        = "2026",
   url         = "https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf"
+)
+
+bibentry(
+  bibtype = "Unpublished",
+  title   = "Estimating Treatment Effects under Staggered Timing and Non-Spherical Errors",
+  author  = c(person("Parush", "Arora"), person("Rishabh", "Bijani")),
+  year    = "2026",
+  note    = "Available at SSRN",
+  url     = "https://ssrn.com/abstract=6558759"
 )

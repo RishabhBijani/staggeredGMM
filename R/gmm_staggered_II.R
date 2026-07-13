@@ -13,6 +13,10 @@
 #'   Economics Discussion Paper 163.
 #'   <https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf>
 #'
+#'   Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+#'   Staggered Timing and Non-Spherical Errors." Available at SSRN:
+#'   <https://ssrn.com/abstract=6558759>.
+#'
 #' @inheritParams gmm_staggered_I
 #'
 #' @return A list with the same components as [gmm_staggered_I()]. The
@@ -20,11 +24,11 @@
 #'   are used internally but are not part of the returned value.
 #'
 #' @section Warnings: `Q_H` (the incidence matrix mapping clean comparisons
-#'   to CATTs) can be rank deficient under some designs -- most commonly when
+#'   to CATTs) can be rank deficient under some designs, most commonly when
 #'   a cohort has no later cohort available as a not-yet-treated control and
 #'   `has_nt = FALSE`. When this happens, the affected CATTs have no clean
 #'   comparison at all, so the fallback reports `beta_hat = 0, SE = 0` for
-#'   exactly these cells -- not a precisely-estimated null -- and a warning
+#'   exactly these cells (not a precisely-estimated null), and a warning
 #'   names the exact affected cells. `has_nt = TRUE` with no `gname == 0`
 #'   units present in `data` is treated as a likely data-coding error and
 #'   raises an error rather than silently proceeding as `has_nt = FALSE`. If
@@ -171,7 +175,7 @@ gmm_staggered_II <- function(data, y_var, t_var, id_var, gname,
     zero_cols <- which(colSums(abs(Q_H)) == 0)
     bad_cells <- cells[zero_cols, c("g", "t")]
     warning(sprintf(
-      "Q_H is rank deficient (rank %d of %d): %d CATT(s) have no clean comparison at all under this design, so the fallback reports beta_hat = 0, SE = 0 for these cells -- not a precisely-estimated null. Affected: %s.%s",
+      "Q_H is rank deficient (rank %d of %d): %d CATT(s) have no clean comparison at all under this design, so the fallback reports beta_hat = 0, SE = 0 for these cells (not a precisely-estimated null). Affected: %s.%s",
       Q_H_rank, N_beta, length(zero_cols),
       paste(sprintf("(g=%d, t=%d)", bad_cells$g, bad_cells$t), collapse = ", "),
       if (!has_nt) " Consider has_nt = TRUE if a never-treated group is available." else ""

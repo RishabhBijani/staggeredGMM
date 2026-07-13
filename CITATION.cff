@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: >-
-  If you use this software, please cite both the software itself and the
-  underlying paper (see preferred-citation below).
+  If you use this software, please cite the software itself and both
+  underlying papers (see preferred-citation and references below).
 title: staggeredGMM
 type: software
 version: 0.0.0.9000
@@ -30,3 +30,15 @@ preferred-citation:
   month: 5
   url: "https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf"
   notes: "Ashoka University Economics Discussion Paper 163"
+references:
+  - type: unpublished
+    title: "Estimating Treatment Effects under Staggered Timing and Non-Spherical Errors"
+    authors:
+      - family-names: Arora
+        given-names: Parush
+      - family-names: Bijani
+        given-names: Rishabh
+    date-released: 2026-04-10
+    url: "https://ssrn.com/abstract=6558759"
+    doi: "10.2139/ssrn.6558759"
+    notes: "Available at SSRN"

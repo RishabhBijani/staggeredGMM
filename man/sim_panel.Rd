@@ -19,25 +19,46 @@ multiple-covariate \code{covar} examples.}
 }
 }
 \source{
-Simulated for Arora and Bijani, "Estimating Treatment Effects
-under Staggered Timing and Non-Spherical Errors".
+Simulated for Arora, P. and Bijani, R. (2026). "Efficient
+Estimation of Treatment Effects under Staggered Adoption: GMM
+Approach." Ashoka University Economics Discussion Paper 163; and
+Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+Staggered Timing and Non-Spherical Errors." Available at SSRN:
+\url{https://ssrn.com/abstract=6558759}.
 }
 \usage{
 sim_panel
 }
 \description{
-A balanced synthetic panel used in examples, the vignette, and tests. It is
-generated under a staggered adoption design with five treatment cohorts, a
-never-treated group, cohort-heterogeneous dynamic treatment effects, AR(1)
-errors, and two baseline covariates. The core data-generating process
-(fixed effects, AR(1) errors, the cohort-heterogeneous treatment-effect
-form) is adapted from \code{data-raw/sim_panel.R}'s DGP2 backbone; the
-covariates are a package-specific addition. True CATTs are deterministic
-given (cohort, year). The true aggregate treatment effect is ATT_CW =
--16.793750 (weighted by share of treated observations -- what
-\code{\link[=gmm_staggered_I]{gmm_staggered_I()}} and its siblings report). For reference, the
-equal-cohort-weighted aggregate is ATT_EW = -15.820203, though this
-weighting is not itself returned by the package. See \code{data-raw/sim_panel.R}
-for the exact data-generating process.
+A balanced synthetic panel used in examples, the vignette, and tests: 60
+units observed over 33 periods, with five treatment cohorts (first
+treated in periods 10, 13, 16, 19, or 22; 10 units each) and a
+never-treated group (10 units). True CATTs are deterministic given
+(cohort, year). The true aggregate treatment effect is ATT_CW =
+-16.793750 (weighted by share of treated observations, which is what
+\code{\link[=gmm_staggered_I]{gmm_staggered_I()}} and its siblings report).
+}
+\details{
+The data-generating process, for unit \eqn{i} in cohort
+\eqn{g_i} at period \eqn{t}:
+\deqn{y_{it} = \alpha_i + \lambda_t + \tau_{it} + x_{1i}\theta_{1t} +
+  x_{2i}\theta_{2t} + \varepsilon_{it}}
+\itemize{
+\item \eqn{\alpha_i \sim N(0, 1)}: unit fixed effect.
+\item \eqn{\lambda_t \sim N(0, 1)}: period fixed effect.
+\item \eqn{\tau_{it} = \beta_{g_i}(1 + r_{g_i})^{t - g_i}} for
+\eqn{t \ge g_i} (0 otherwise): the cohort-heterogeneous, dynamic
+treatment effect, with \eqn{\beta = (-16, -12, -10, -9, -2)} and
+\eqn{r = (0.01, 0.04, 0.08, 0.10, 0.07)} for cohorts
+\eqn{(10, 13, 16, 19, 22)} respectively.
+\item \eqn{\varepsilon_{it}}: AR(1)-correlated across \eqn{t} within
+each unit, with autocorrelation \eqn{\rho = 0.5}.
+\item \eqn{x_{1i}}, \eqn{x_{2i}}: the baseline covariates below,
+each with a cohort-correlated mean and a linear-in-time loading
+(\eqn{\theta_{1t}}, \eqn{\theta_{2t}}), so an unconditional DiD is
+genuinely confounded by them.
+}
+\code{set.seed(312844)} is used throughout. See \code{data-raw/sim_panel.R} for
+the exact implementation.
 }
 \keyword{datasets}

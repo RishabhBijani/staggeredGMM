@@ -19,7 +19,7 @@ gmm_staggered_III(
 \item{data}{A data frame (or data.table) containing a balanced panel: one
 row per unit-period, with every unit observed in every period.}
 
-\item{y_var}{Character. Name of the outcome variable column in \code{data} --
+\item{y_var}{Character. Name of the outcome variable column in \code{data}:
 the variable whose treatment effect is being estimated.}
 
 \item{t_var}{Character. Name of the calendar-time column in \code{data} (e.g.
@@ -72,6 +72,10 @@ Arora, P. and Bijani, R. (2026). "Efficient Estimation of Treatment
 Effects under Staggered Adoption: GMM Approach." Ashoka University
 Economics Discussion Paper 163.
 \url{https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf}
+
+Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+Staggered Timing and Non-Spherical Errors." Available at SSRN:
+\url{https://ssrn.com/abstract=6558759}.
 }
 \details{
 At typical cohort sample sizes, estimating an unrestricted T x T
@@ -79,23 +83,23 @@ covariance per cohort routinely leaves the efficient GMM step unable to
 converge (\code{eff_ok = FALSE}); the fallback sandwich standard error is the
 norm rather than the exception for this estimator, not a sign of
 misuse. Because of this, and unlike \code{\link[=gmm_staggered_I]{gmm_staggered_I()}} and
-\code{\link[=gmm_staggered_II]{gmm_staggered_II()}}, \code{eff_ok = FALSE} does not raise a warning here --
+\code{\link[=gmm_staggered_II]{gmm_staggered_II()}}, \code{eff_ok = FALSE} does not raise a warning here:
 a warning on nearly every call to this estimator would just be noise.
 
 This "FullCov" weighting relaxes the \emph{within}-cohort structure (no
 stationarity assumed) while keeping cohorts mutually independent. It is
 a different, non-nested generalisation of the pooled-Toeplitz baseline
 from one that instead relaxes \emph{cross}-cohort independence while keeping
-the within-cohort Toeplitz structure -- the two are not interchangeable
+the within-cohort Toeplitz structure; the two are not interchangeable
 and are not expected to produce the same estimates.
 }
 \section{Warnings}{
  \code{Q_H} (the incidence matrix mapping clean comparisons
-to CATTs) can be rank deficient under some designs -- most commonly when
+to CATTs) can be rank deficient under some designs, most commonly when
 a cohort has no later cohort available as a not-yet-treated control and
 \code{has_nt = FALSE}. When this happens, the affected CATTs have no clean
 comparison at all, so the fallback reports \verb{beta_hat = 0, SE = 0} for
-exactly these cells -- not a precisely-estimated null -- and a warning
+exactly these cells (not a precisely-estimated null), and a warning
 names the exact affected cells. \code{has_nt = TRUE} with no \code{gname == 0}
 units present in \code{data} is treated as a likely data-coding error and
 raises an error rather than silently proceeding as \code{has_nt = FALSE}.
