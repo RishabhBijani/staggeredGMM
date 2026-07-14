@@ -220,6 +220,12 @@ gmm_staggered_III <- function(data, y_var, t_var, id_var, gname,
   }
   w_CW <- w_CW / sum(w_CW)
 
+  eff_ok   <- FALSE
+  QtAQ_out <- NULL
+  W_out    <- NULL
+  n_iter   <- 0L
+
+  if (N_2x2 > 0L) {
   m_cols <- n_grp * TT
   U_fac  <- matrix(0.0, nrow = N_2x2, ncol = m_cols)
   for (gi in seq_len(n_grp)) {
@@ -233,11 +239,6 @@ gmm_staggered_III <- function(data, y_var, t_var, id_var, gname,
     U_fac[cbind(active, cols[tr_i])] <- U_fac[cbind(active, cols[tr_i])] - sgn
   }
   red_fac <- gmm_reduced_factor(U_fac, Q_H, Delta)
-
-  eff_ok   <- FALSE
-  QtAQ_out <- NULL
-  W_out    <- NULL
-  n_iter   <- 0L
 
   for (iter in seq_len(max_iter)) {
     n_iter   <- iter
@@ -264,7 +265,14 @@ gmm_staggered_III <- function(data, y_var, t_var, id_var, gname,
       if (length(active) == 0L || length(units_g) == 0L) next
 
       rm_g  <- R_mat[units_g, , drop = FALSE]
-      Sig_g <- crossprod(rm_g) / N_g
+      Sig_g <- matrix(0.0, TT, TT)
+      for (s in seq_len(TT)) {
+        for (u in s:TT) {
+          val <- sum(rm_g[, s] * rm_g[, u], na.rm = TRUE) / N_g
+          Sig_g[s, u] <- val
+          Sig_g[u, s] <- val
+        }
+      }
       W[cols, cols] <- Sig_g / N_g
     }
     W_out <- W
@@ -294,6 +302,9 @@ gmm_staggered_III <- function(data, y_var, t_var, id_var, gname,
     M_out    <- (M_out + t(M_out)) / 2
     QtOmegaQ <- crossprod(red_fac$uQ, M_out %*% red_fac$uQ)
     V_beta   <- QtQ_inv %*% QtOmegaQ %*% QtQ_inv
+  }
+  } else {
+    V_beta <- matrix(0.0, N_beta, N_beta)
   }
 
   SE_catt <- sqrt(pmax(0, diag(V_beta)))

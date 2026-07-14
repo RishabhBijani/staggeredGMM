@@ -4,3 +4,5 @@
 ^CITATION\.cff$
 ^run_simulation_campaign\.R$
 ^resume_simulation_campaign\.R$
+^run_stress_campaign\.R$
+^\.github$
