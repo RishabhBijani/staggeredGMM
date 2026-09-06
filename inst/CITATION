@@ -1,14 +1,12 @@
-citHeader("To cite staggeredGMM, please cite both papers:")
+citHeader("To cite staggeredGMM in publications, please cite the software and the paper describing the method:")
 
 bibentry(
-  bibtype     = "TechReport",
-  title       = "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach",
-  author      = c(person("Parush", "Arora"), person("Rishabh", "Bijani")),
-  institution = "Ashoka University",
-  type        = "Economics Discussion Paper",
-  number      = "163",
-  year        = "2026",
-  url         = "https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf"
+  bibtype = "Manual",
+  title   = "staggeredGMM: GMM Estimation of Treatment Effects Under Staggered Adoption",
+  author  = c(person("Rishabh", "Bijani"), person("Parush", "Arora")),
+  year    = "2026",
+  note    = "R package version 0.1.0",
+  url     = "https://github.com/RishabhBijani/staggeredGMM"
 )
 
 bibentry(
@@ -17,5 +15,5 @@ bibentry(
   author  = c(person("Parush", "Arora"), person("Rishabh", "Bijani")),
   year    = "2026",
   note    = "Available at SSRN",
-  url     = "https://ssrn.com/abstract=6558759"
+  doi     = "10.2139/ssrn.6558759"
 )

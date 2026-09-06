@@ -1,21 +1,33 @@
-#' staggeredGMM: GMM Estimation of Treatment Effects under Staggered Adoption
+#' staggeredGMM: GMM Estimation of Treatment Effects Under Staggered Adoption
 #'
-#' Implements the GMM estimator of Arora and Bijani, "Estimating Treatment
-#' Effects under Staggered Timing and Non-Spherical Errors", for
-#' cohort-and-time-specific average treatment effects (CATTs) under staggered
-#' treatment adoption. Three weighting variants are provided:
-#' [gmm_staggered_I()] (pooled Toeplitz / "Eff"), [gmm_staggered_II()]
-#' (cohort-specific Toeplitz / "HetVar"), and [gmm_staggered_III()] (fully
-#' unrestricted within-cohort covariance / "FullCov"). All three support
-#' optional baseline-covariate adjustment via `covar`.
+#' Estimates cohort-by-time average treatment effects (CATTs) under staggered
+#' treatment adoption by the generalized method of moments, following Arora
+#' and Bijani (2026).
+#'
+#' The single estimation entry point is [gmm_staggered()]. The
+#' over-identification test of parallel trends and no anticipation is
+#' [gmm_j_test()].
+#'
+#' @section Data coding conventions:
+#' `gmm_staggered()` expects one row per unit-period. The cohort column gives
+#' each unit's first treated period, with `0` reserved for units that are
+#' never treated. Time must be integer-valued, and the set of periods present
+#' in the data (pooled across units) must be consecutive. Individual units may
+#' be missing individual periods; see `vignette("staggeredGMM")` for the
+#' unbalanced-panel policy. Full details, including every condition that
+#' raises an error, are in [gmm_staggered()].
+#'
+#' @references
+#' Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+#' Staggered Timing and Non-Spherical Errors."
+#' \doi{10.2139/ssrn.6558759}
 #'
 #' @keywords internal
 "_PACKAGE"
 
-#' @importFrom stats complete.cases lm.fit model.matrix residuals setNames toeplitz
+#' @importFrom stats complete.cases lm.fit model.frame model.matrix na.pass
+#' @importFrom stats pchisq qnorm reformulate residuals setNames toeplitz
 #' @importFrom fixest feols
 #' @importFrom MASS ginv
-#' @import data.table
+#' @importFrom utils head
 NULL
-
-utils::globalVariables(c("unit", "time", "Y", "Y_adj", "tau_hat"))

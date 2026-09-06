@@ -1,44 +1,30 @@
 cff-version: 1.2.0
 message: >-
-  If you use this software, please cite the software itself and both
-  underlying papers (see preferred-citation and references below).
-title: staggeredGMM
+  If you use this software, please cite both the software itself and the
+  paper describing the method.
+title: "staggeredGMM: GMM Estimation of Treatment Effects Under Staggered Adoption"
 type: software
-version: 0.0.0.9000
-date-released: 2026-07-12
+version: 0.1.0
+license: MIT
 authors:
   - family-names: Bijani
     given-names: Rishabh
     email: rishabhbijani@gmail.com
+    orcid: "https://orcid.org/0009-0003-9636-1774"
   - family-names: Arora
     given-names: Parush
-    email: parush.arora@ashoka.edu.in
+    orcid: "https://orcid.org/0009-0004-6571-3850"
 repository-code: "https://github.com/RishabhBijani/staggeredGMM"
-license: MIT
-preferred-citation:
-  type: report
-  title: "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach"
-  authors:
-    - family-names: Arora
-      given-names: Parush
-    - family-names: Bijani
-      given-names: Rishabh
-  institution:
-    name: "Ashoka University"
-  number: "163"
-  year: 2026
-  month: 5
-  url: "https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf"
-  notes: "Ashoka University Economics Discussion Paper 163"
 references:
   - type: unpublished
     title: "Estimating Treatment Effects under Staggered Timing and Non-Spherical Errors"
     authors:
       - family-names: Arora
         given-names: Parush
+        orcid: "https://orcid.org/0009-0004-6571-3850"
       - family-names: Bijani
         given-names: Rishabh
-    date-released: 2026-04-10
-    url: "https://ssrn.com/abstract=6558759"
+        orcid: "https://orcid.org/0009-0003-9636-1774"
+    year: 2026
     doi: "10.2139/ssrn.6558759"
     notes: "Available at SSRN"

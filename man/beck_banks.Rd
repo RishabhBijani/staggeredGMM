@@ -3,33 +3,68 @@
 \docType{data}
 \name{beck_banks}
 \alias{beck_banks}
-\title{State-level panel: bank deregulation and inequality}
+\title{State-level panel: bank branch deregulation and income inequality}
 \format{
 A data frame with 1519 rows and 8 variables:
 \describe{
 \item{state}{Two-letter state abbreviation.}
 \item{state_name}{State name.}
 \item{statefip}{State FIPS code.}
-\item{wrkyr}{Calendar year.}
+\item{wrkyr}{Calendar year, 1976--2006.}
 \item{gini}{Income Gini coefficient.}
 \item{branch_reform}{Year the state deregulated intrastate bank
-branching (1960 for states already deregulated before the sample
-begins).}
+branching. \code{1960} marks states already deregulated before the sample
+begins.}
 \item{ln_gini}{Natural log of \code{gini}.}
 \item{D_branch}{Treatment indicator.}
 }
 }
 \source{
-Beck, Thorsten, Ross Levine, and Alexey Levkov. "Big Bad Banks?
-The Winners and Losers from Bank Deregulation in the United States."
-\emph{The Journal of Finance} 65, no. 5 (2010): 1637-67.
-\url{http://www.jstor.org/stable/40864982}.
+Beck, T., Levine, R. and Levkov, A. (2010). "Big Bad Banks? The
+Winners and Losers from Bank Deregulation in the United States."
+\emph{The Journal of Finance} 65(5), 1637--1667.
+\doi{10.1111/j.1540-6261.2010.01589.x}
+
+Replication data deposited by the authors at DataverseNL,
+\doi{10.34894/B1K9OU}, and made available under the Creative Commons
+Attribution 4.0 International licence,
+\url{https://creativecommons.org/licenses/by/4.0/}.
+
+Modified from the deposited data: a subset of columns was selected and
+the remainder discarded. No values were altered, recoded or derived. The
+full licence note is installed with the package; see
+\code{system.file("LICENSE.note", package = "staggeredGMM")}.
 }
 \usage{
 beck_banks
 }
 \description{
-A panel of US states, 1976--2006, used to study the relationship between
-intrastate bank-branching deregulation and income inequality.
+A panel of 49 US states over 1976--2006, used to study intrastate bank
+branching deregulation and the distribution of income.
 }
+\section{Always-treated states}{
+ This dataset is a worked example of a
+coding pitfall as much as of a design. Thirteen of the 49 states
+deregulated at or before 1976, the first observed year: AK, AZ, CA, DC,
+ID, MD, ME, NC, NV, NY, RI, SC and VT, ten of them carrying
+\code{branch_reform == 1960}. These units have no pre-treatment period, so
+none of their effects is identified. No state is coded \code{0}, so the
+dataset also contains no never-treated group.
+
+Passed to \code{\link[=gmm_staggered]{gmm_staggered()}} as it stands, the always-treated states
+raise an error naming them. That is deliberate: silently including them
+would return a plausible-looking aggregate contaminated by cells that
+are not estimated at all. Restrict to states adopting inside the
+window before estimating:
+
+\preformatted{
+  dat <- beck_banks[beck_banks$branch_reform > 1976, ]
+  fit <- gmm_staggered(dat, yname = "ln_gini", tname = "wrkyr",
+                       idname = "state", gname = "branch_reform")
+  }
+
+This leaves 36 states across cohorts 1977--1999, identified from
+not-yet-treated controls alone.
+}
+
 \keyword{datasets}

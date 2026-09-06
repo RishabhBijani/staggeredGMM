@@ -8,35 +8,32 @@
 A data frame with 1980 rows and 6 variables:
 \describe{
 \item{unit_id}{Unit identifier, integer 1--60.}
-\item{year}{Time period, integer 1--33.}
-\item{cohort}{0 = never-treated; 10, 13, 16, 19, or 22 = first treated
+\item{year}{Period, integer 1--33.}
+\item{cohort}{0 = never treated; 10, 13, 16, 19 or 22 = first treated
 period.}
 \item{y}{Observed outcome.}
-\item{x1}{A baseline (pre-treatment) continuous covariate, for \code{covar}
-examples.}
-\item{x2}{A baseline (pre-treatment) binary covariate, for
-multiple-covariate \code{covar} examples.}
+\item{x1}{Continuous baseline covariate.}
+\item{x2}{Binary baseline covariate.}
 }
 }
 \source{
-Simulated for Arora, P. and Bijani, R. (2026). "Efficient
-Estimation of Treatment Effects under Staggered Adoption: GMM
-Approach." Ashoka University Economics Discussion Paper 163; and
-Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
-Staggered Timing and Non-Spherical Errors." Available at SSRN:
-\url{https://ssrn.com/abstract=6558759}.
+Simulated for Arora, P. and Bijani, R. (2026). "Estimating
+Treatment Effects under Staggered Timing and Non-Spherical Errors."
+\doi{10.2139/ssrn.6558759}
 }
 \usage{
 sim_panel
 }
 \description{
-A balanced synthetic panel used in examples, the vignette, and tests: 60
-units observed over 33 periods, with five treatment cohorts (first
-treated in periods 10, 13, 16, 19, or 22; 10 units each) and a
-never-treated group (10 units). True CATTs are deterministic given
-(cohort, year). The true aggregate treatment effect is ATT_CW =
--16.793750 (weighted by share of treated observations, which is what
-\code{\link[=gmm_staggered_I]{gmm_staggered_I()}} and its siblings report).
+A balanced synthetic panel used in the examples, the vignette and the
+tests: 60 units observed over 33 periods, with five treatment cohorts
+(first treated in periods 10, 13, 16, 19 or 22; 10 units each) and a
+never-treated group of 10 units. True effects are deterministic given
+(cohort, period), so both aggregate targets are known exactly:
+\code{ATT_CW = -16.79375} under treated-observation weighting and
+\code{ATT_EW = -15.82020} under cohort-equal weighting. The two differ because
+earlier cohorts are observed for more post-treatment periods; see
+\code{\link[=gmm_staggered]{gmm_staggered()}} for the definitions.
 }
 \details{
 The data-generating process, for unit \eqn{i} in cohort
@@ -47,18 +44,20 @@ The data-generating process, for unit \eqn{i} in cohort
 \item \eqn{\alpha_i \sim N(0, 1)}: unit fixed effect.
 \item \eqn{\lambda_t \sim N(0, 1)}: period fixed effect.
 \item \eqn{\tau_{it} = \beta_{g_i}(1 + r_{g_i})^{t - g_i}} for
-\eqn{t \ge g_i} (0 otherwise): the cohort-heterogeneous, dynamic
-treatment effect, with \eqn{\beta = (-16, -12, -10, -9, -2)} and
+\eqn{t \ge g_i} and 0 otherwise, with
+\eqn{\beta = (-16, -12, -10, -9, -2)} and
 \eqn{r = (0.01, 0.04, 0.08, 0.10, 0.07)} for cohorts
-\eqn{(10, 13, 16, 19, 22)} respectively.
-\item \eqn{\varepsilon_{it}}: AR(1)-correlated across \eqn{t} within
-each unit, with autocorrelation \eqn{\rho = 0.5}.
-\item \eqn{x_{1i}}, \eqn{x_{2i}}: the baseline covariates below,
-each with a cohort-correlated mean and a linear-in-time loading
-(\eqn{\theta_{1t}}, \eqn{\theta_{2t}}), so an unconditional DiD is
-genuinely confounded by them.
+\eqn{(10, 13, 16, 19, 22)}.
+\item \eqn{\varepsilon_{it}}: AR(1) within unit, \eqn{\rho = 0.5}.
+\item \eqn{x_{1i}}, \eqn{x_{2i}}: baseline covariates with
+cohort-correlated means and linear-in-time loadings
+(\eqn{\theta_{1t}}, \eqn{\theta_{2t}}), so an unconditional
+difference-in-differences is genuinely confounded by them.
 }
-\code{set.seed(312844)} is used throughout. See \code{data-raw/sim_panel.R} for
-the exact implementation.
+\code{set.seed(312844)} throughout. See \code{data-raw/sim_panel.R} for the exact
+implementation.
+
+This is the design of Appendix E of the paper, so the specification test
+has 70 full-set and 14 local-window restrictions on it.
 }
 \keyword{datasets}

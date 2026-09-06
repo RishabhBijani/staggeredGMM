@@ -1,39 +1,46 @@
 Package: staggeredGMM
-Title: GMM Estimation of Treatment Effects under Staggered Adoption
-Version: 0.0.0.9000
+Title: GMM Estimation of Treatment Effects Under Staggered Adoption
+Version: 0.1.0
 Authors@R: c(
-    person("Rishabh", "Bijani", , "rishabhbijani@gmail.com", role = c("aut", "cre")),
-    person("Parush", "Arora", , "parush.arora@ashoka.edu.in", role = "aut")
+    person(given = "Rishabh", family = "Bijani",
+           email = "rishabhbijani@gmail.com",
+           role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0009-0003-9636-1774")),
+    person(given = "Parush", family = "Arora",
+           role = c("aut", "cph"),
+           comment = c(ORCID = "0009-0004-6571-3850"))
     )
-Description: Implements the generalized method of moments (GMM) estimator
-    for cohort x time-specific average treatment effects (CATTs) under
-    staggered treatment adoption developed in Arora and Bijani (2026),
-    "Efficient Estimation of Treatment Effects under Staggered Adoption:
-    GMM Approach", Ashoka University Economics Discussion Paper 163, and
-    Arora and Bijani (2026), "Estimating Treatment Effects under Staggered
-    Timing and Non-Spherical Errors", available at SSRN. Three models are
-    provided: pooled Toeplitz, cohort-specific Toeplitz, or fully
-    unrestricted within-cohort covariance. Optional baseline-covariate
-    adjustment via outcome regression is supported for all three
-    estimators.
+Description: Estimates cohort-by-time average treatment effects under
+    staggered treatment adoption by the generalized method of moments.
+    Only clean two-by-two difference-in-differences comparisons, against
+    never-treated or not-yet-treated control cohorts, enter the moment
+    system; already-treated controls are excluded as algebraically
+    redundant. Three weighting schemes are provided, corresponding to a
+    pooled stationary covariance, a cohort-specific stationary covariance,
+    and an unrestricted within-cohort covariance. Optional adjustment for
+    baseline covariates by outcome regression, and a serial-correlation
+    robust over-identification test of parallel trends and no
+    anticipation, are also supported. The methods are described in Arora
+    and Bijani (2026) <doi:10.2139/ssrn.6558759>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1.0)
 Imports:
-    data.table,
     fixest,
     MASS,
-    stats
+    stats,
+    utils
 Suggests:
+    covr,
+    data.table,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0),
-    covr
+    testthat (>= 3.1.5)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 LazyData: true
 URL: https://github.com/RishabhBijani/staggeredGMM
 BugReports: https://github.com/RishabhBijani/staggeredGMM/issues
-Depends: 
-    R (>= 2.10)
 Config/roxygen2/version: 8.0.0

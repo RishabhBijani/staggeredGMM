@@ -8,10 +8,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 ```{r setup}
@@ -20,82 +17,288 @@ library(staggeredGMM)
 
 ## Overview
 
-`staggeredGMM` estimates cohort x time-specific average treatment effects (CATTs) under staggered treatment adoption by generalized method of moments (GMM) as proposed by Arora and Bijani (2026).
+`staggeredGMM` estimates cohort-by-time average treatment effects (CATTs)
+under staggered treatment adoption by the generalized method of moments, as
+proposed in
 
-> Arora, P. and Bijani, R. (2026). "Efficient Estimation of Treatment Effects under Staggered Adoption: GMM Approach." Ashoka University Economics Discussion Paper 163. <https://dp.ashoka.edu.in/ash/wpaper/paper163_0.pdf>
+> Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
+> Staggered Timing and Non-Spherical Errors." Available at SSRN:
+> <https://doi.org/10.2139/ssrn.6558759>
 
-> Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under Staggered Timing and Non-Spherical Errors." Available at SSRN: <https://ssrn.com/abstract=6558759> or <http://dx.doi.org/10.2139/ssrn.6558759>.
+Only *clean* two-by-two difference-in-differences comparisons enter the
+moment system: a treated cohort against a never-treated group, or against a
+cohort not yet treated at the relevant period. Comparisons against
+already-treated controls are exact linear combinations of the clean ones and
+are never formed.
 
-Only clean comparisons (a treated cohort against a never-treated group, or against a not-yet-treated cohort) are used as moment conditions; already-treated units are never used as controls. The package provides three models:
+This vignette covers how to call the estimator and what it returns. For the
+methodology, the choice among the three weighting schemes, and the
+simulation and empirical evidence, see the paper.
 
-- `gmm_staggered_I()`: pooled Toeplitz, one autocovariance sequence shared by every cohort.
-- `gmm_staggered_II()`: cohort-specific Toeplitz, each cohort estimates its own sequence from its own residuals.
-- `gmm_staggered_III()`: fully unrestricted within-cohort covariance, no stationarity assumed.
+## Data coding conventions
 
-All three return the same cohort-and-time-specific CATTs and an aggregate ATT, differing only in how the weighting matrix that makes the GMM estimator efficient is constructed.
+`gmm_staggered()` is strict about its input, and rejects rather than coerces.
+The requirements are:
 
-## The Example Data
+* one row per unit-period, with no duplicated unit-period pair;
+* a numeric outcome (factor, character and logical outcomes are errors);
+* integer-valued time and cohort columns;
+* the cohort constant within unit, with `0` for never-treated units;
+* no period absent from the whole panel;
+* no unit treated at or before the first observed period.
 
-`sim_panel` is a balanced synthetic panel bundled with the package: 60 units observed over 33 periods, with five treatment cohorts (first treated in periods 10, 13, 16, 19, or 22) and a never-treated group, cohort-heterogeneous dynamic treatment effects, AR(1)-correlated errors, and two baseline covariates, `x1` and `x2`.
+Missing outcomes are allowed. Missing unit ids, periods or cohorts are not.
 
-```{r data}
-str(sim_panel)
-table(sim_panel$cohort[!duplicated(sim_panel$unit_id)])
-```
+Two conventions are worth stating explicitly. First, a unit whose cohort
+falls *after* the last observed period is untreated throughout the window,
+so it is pooled with the never-treated group as a clean control rather than
+discarded. Second, a unit treated at or before the first observed period has
+no pre-treatment period at all, so none of its effects is identified; rather
+than return zeros for those cells and contaminate the aggregate, the
+estimator stops and names the offending cohort.
 
-## Running An Estimator
+## A first estimate
 
-Every estimator takes the same core arguments: the outcome, time, unit, and cohort column names, and whether to include never-treated units as an additional control group.
+`sim_panel` is a balanced synthetic panel: 60 units over 33 periods, five
+treated cohorts and a never-treated group.
 
 ```{r basic}
-res <- gmm_staggered_I(sim_panel, y_var = "y", t_var = "year",
-                        id_var = "unit_id", gname = "cohort",
-                        has_nt = TRUE)
-res$catt_out
-res$ATT_CW
-res$SE_CW
+fit <- gmm_staggered(sim_panel, yname = "y", tname = "year",
+                     idname = "unit_id", gname = "cohort")
+fit
 ```
 
-`catt_out` gives one row per (cohort, post-period) CATT. `ATT_CW` aggregates these into a single number, weighted by each cohort's share of treated observations; `SE_CW` is its standard error.
+The never-treated group was detected automatically. `never_treated = TRUE`
+requires one and errors if none exists; `never_treated = FALSE` excludes
+them.
 
-`eff_ok` records whether the iterated GMM reweighting converged:
+## What is returned
 
-```{r eff_ok}
-res$eff_ok
-res$n_iter
+```{r catt}
+head(fit$catt)
 ```
 
-## Comparing The Three Estimators
+`catt` gives one row per cohort-by-time cell, with the event time, the
+estimate and its standard error, whether the cell is identified, and how
+many clean comparisons anchor it. `coef()`, `vcov()` and `confint()` work as
+usual:
 
-```{r compare}
-res2 <- gmm_staggered_II(sim_panel, y_var = "y", t_var = "year",
-                          id_var = "unit_id", gname = "cohort", has_nt = TRUE)
-res3 <- gmm_staggered_III(sim_panel, y_var = "y", t_var = "year",
-                           id_var = "unit_id", gname = "cohort", has_nt = TRUE)
-data.frame(estimator = c("I", "II", "III"),
-           ATT_CW    = c(res$ATT_CW, res2$ATT_CW, res3$ATT_CW),
-           SE_CW     = c(res$SE_CW, res2$SE_CW, res3$SE_CW),
-           eff_ok    = c(res$eff_ok, res2$eff_ok, res3$eff_ok))
+```{r methods}
+head(coef(fit))
+head(confint(fit))
 ```
 
-## Baseline-Covariate Adjustment
+## The two aggregates
 
-All three estimators accept an optional `covar` argument: a character vector naming baseline (pre-treatment) covariate columns. This applies the outcome-regression adjustment of Section 4.5 of the paper, which allows the parallel-trends assumption to hold only after conditioning on `covar` rather than unconditionally. More than one covariate can be supplied at once:
+Two scalar summaries are reported, and they answer different questions.
+
+* **`CW`, treated-observation weighting.** Every treated unit-period gets
+  equal weight, so a cohort observed for longer contributes more total
+  weight. This is the aggregation used throughout the paper, and it
+  coincides with the "simple" aggregation of Callaway and Sant'Anna (2021).
+* **`EW`, cohort-equal weighting.** Each treated cohort gets total weight
+  `1/K`, spread equally over its own post-treatment window, so exposure
+  length does not affect a cohort's influence.
+
+```{r aggregates}
+c(CW = fit$aggregate$CW$estimate, EW = fit$aggregate$EW$estimate)
+```
+
+On this design the true values are `-16.79375` and `-15.82020`
+respectively; they differ because earlier cohorts are observed for more
+post-treatment periods. Neither is more correct than the other. For any
+other target, weight `fit$catt$estimate` directly.
+
+## Choosing a weighting
+
+```{r weighting}
+fit_ht <- gmm_staggered(sim_panel, yname = "y", tname = "year",
+                        idname = "unit_id", gname = "cohort",
+                        weighting = "cohort_toeplitz")
+c(pooled = fit$aggregate$CW$estimate, cohort = fit_ht$aggregate$CW$estimate)
+```
+
+All three weightings target the same CATT vector using the same moment
+conditions. They do not generally return the same numbers: the system is
+over-identified, so a different weighting matrix gives a different estimate.
+Which to prefer is a methodological question the paper addresses.
+
+## Convergence
+
+```{r convergence}
+unlist(fit$convergence[c("converged", "solve_ok", "termination", "n_iter")])
+```
+
+`converged` is `TRUE` only when the largest change in any CATT fell below
+`tol`. It is deliberately distinct from `solve_ok`, which records merely that
+a weighted solve succeeded; a run can solve successfully at every iteration
+and still exhaust `max_iter` without converging. `termination` says why the
+iteration stopped.
+
+`max_iter` defaults to 100 because the iteration can converge linearly at a
+slow rate. On this design `weighting = "cohort_toeplitz"` needs 86 steps,
+though the aggregate ATT is stable to five significant figures well before
+that — `tol` applies to the individual effects, which settle later.
+
+The unrestricted weighting is a stronger constraint than it looks. Each
+cohort's covariance is built from that cohort's residual vectors, so its rank
+cannot exceed `min(N_g, T - 1)`, and the weight's total rank is bounded by
+that quantity summed over groups. Unless the total comfortably exceeds the
+number of effects, the normal equations are singular and no weighted step
+completes at all. `sim_panel` has 60 units and 90 effects, so it does not qualify:
+
+```{r unrestricted}
+fit_u <- gmm_staggered(sim_panel, yname = "y", tname = "year",
+                       idname = "unit_id", gname = "cohort",
+                       weighting = "unrestricted")
+```
+
+The estimate returned in that case is the identity-weighted seed, not an
+unrestricted-weighted GMM estimator, which is why it always warns. Failing to
+*converge* after a weighted step did run is a different matter, and is common
+enough under this weighting that it does not warn.
+
+## Unbalanced panels
+
+Missing outcomes are supported. Group-period means are taken over the units
+observed at that period; autocovariances are divided by the number of
+residual pairs actually observed at each lag; and the variance of a
+group-period mean accounts for the overlap between the unit sets
+contributing at each pair of periods. All three reduce exactly to the
+complete-data formulas when nothing is missing, so there is one code path
+rather than two.
+
+```{r unbalanced}
+gappy <- sim_panel
+set.seed(1)
+gappy$y[sample(nrow(gappy), 100)] <- NA
+fit_gap <- gmm_staggered(gappy, yname = "y", tname = "year",
+                         idname = "unit_id", gname = "cohort")
+c(balanced = fit$aggregate$CW$estimate,
+  unbalanced = fit_gap$aggregate$CW$estimate)
+```
+
+This is valid when missingness is independent of the outcome given group and
+period. Selection on outcomes is not addressed by any weighting scheme.
+
+A comparison referencing a group-period at which *no* unit is observed
+cannot be formed and is dropped, with a warning giving the count.
+
+## Partial identification
+
+A cohort-by-time effect with no clean comparison is not estimable. Such
+cells are reported as `NA` with `identified = FALSE`, never as an estimated
+zero, and are excluded from the parameter vector so that one unestimable
+cell does not disable the efficient weighting everywhere else.
+
+Where an unidentified cell carries positive aggregation weight, the
+aggregate itself is `NA`, and an identified-subset aggregate renormalised
+over the estimable cells is reported alongside it:
+
+```{r partial}
+names(fit$aggregate$CW)
+```
+
+## Baseline covariates
+
+`covar` takes a character vector of baseline, time-invariant covariate
+columns and applies the outcome-regression adjustment of Section 4.5 of the
+paper, so that parallel trends need hold only conditional on them.
 
 ```{r covar}
-res_cov <- gmm_staggered_I(sim_panel, y_var = "y", t_var = "year",
-                           id_var = "unit_id", gname = "cohort",
-                           has_nt = TRUE, covar = c("x1", "x2"))
-res_cov$ATT_CW
-res_cov$SE_CW
+fit_cov <- gmm_staggered(sim_panel, yname = "y", tname = "year",
+                         idname = "unit_id", gname = "cohort",
+                         covar = c("x1", "x2"))
+fit_cov$aggregate$CW$estimate
 ```
 
-If a supplied covariate turns out not to be actually constant over time for some units (a baseline covariate is assumed to be pre-treatment and fixed, but `staggeredGMM` does not simply trust that), it uses each affected unit's first-observed value and raises a warning naming exactly which units were affected, rather than silently using a value that changes within a unit.
+If a supplied covariate is not in fact constant within unit, each affected
+unit's value at its **earliest observed period** is used and a warning names
+the units. Earliest by time, not first by row: the answer does not depend on
+how the data were sorted.
 
-## Warnings And Errors
+Where the adjustment cannot be identified for some control cohort and pair
+of periods -- too few complete-case control units, or a rank-deficient fit
+-- those comparisons alone revert to the unconditional form, and the count
+is reported in `fit$controls$cov_n_fallback`.
 
-A handful of conditions raise a warning or an error rather than silently returning a misleading number; see `?gmm_staggered_I` (section "Warnings") for the full list.
+## Testing the identifying assumptions
 
-## Other Bundled Datasets
+The over-identifying restrictions are the pre-treatment placebo moments,
+whose expectation is zero only under parallel trends and no anticipation.
+`gmm_j_test()` tests them jointly, weighting them by the estimated
+serial-correlation model.
 
-Two real-world datasets ship with the package for reference: `beck_banks` (Beck, Levine, and Levkov 2010) and `cook_shah_nregs` (Cook and Shah 2022). See `?beck_banks` and `?cook_shah_nregs` for details.
+```{r jtest}
+gmm_j_test(fit)
+```
+
+By default the test uses a local pre-window of three periods before each
+cohort's adoption. Using every placebo restriction is also available, but a
+large number of restrictions degrades the chi-squared approximation when the
+number of units is small:
+
+```{r jtest-full}
+gmm_j_test(fit, type = "full")
+```
+
+Two cautions. Estimation and testing are deliberately decoupled -- the
+estimate uses the full moment system, the test a local window -- because
+using a pre-trends test to gate an estimate distorts its conditional
+distribution (Roth, 2022). And the test speaks only to pre-treatment
+periods: post-treatment parallel trends, the assumption that actually
+identifies the effects, is untestable, so a clean result is necessary but
+not sufficient.
+
+The test requires a never-treated group, since the event-study basis it uses
+differences every cohort against a common never-treated reference.
+
+## A real design, and a coding pitfall
+
+`beck_banks` is a panel of 49 US states over 1976--2006 on bank branch
+deregulation and income inequality. It is also a worked example of the most
+common way a staggered design goes wrong.
+
+```{r beck-pitfall, error = TRUE}
+gmm_staggered(beck_banks, yname = "ln_gini", tname = "wrkyr",
+              idname = "state", gname = "branch_reform")
+```
+
+Thirteen states deregulated at or before 1976, the first observed year, ten
+of them coded `1960`. They are treated throughout the window and have no
+pre-treatment period, so none of their effects is identified. Silently
+including them would return a plausible-looking aggregate contaminated by
+cells that were never estimated. Restrict to states adopting inside the
+window:
+
+```{r beck-fixed}
+dat <- beck_banks[beck_banks$branch_reform > 1976, ]
+fit_beck <- gmm_staggered(dat, yname = "ln_gini", tname = "wrkyr",
+                          idname = "state", gname = "branch_reform")
+fit_beck
+```
+
+This design has no never-treated group either, so identification rests
+entirely on not-yet-treated controls. The consequence is visible in the
+output: the last cohort to adopt has no later cohort to serve as its
+control, so none of its effects is identified, and neither is any cell at a
+period after the final adoption year. Of the 380 cohort-by-time cells, 144
+are unestimable.
+
+```{r beck-identified}
+table(fit_beck$catt$identified)
+fit_beck$aggregate$CW$identified_weight_share
+```
+
+Because unidentified cells carry positive weight, the aggregate itself is
+`NA` and the identified-subset figure is reported instead. That is the
+intended behaviour: an aggregate over a set of cells more than a third of
+which were never estimated would not mean what its name suggests. If a
+never-treated group is available in your own application, supplying it
+identifies far more of the surface.
+
+## Citation
+
+```{r citation, eval = FALSE}
+citation("staggeredGMM")
+```
