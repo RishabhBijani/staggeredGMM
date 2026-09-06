@@ -13,3 +13,4 @@
 ^\.Rhistory$
 ^.*\.tar\.gz$
 ^.*\.Rcheck$
+^CRAN-SUBMISSION$
