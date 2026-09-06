@@ -32,14 +32,3 @@ The selection is reproduced by data-raw/beck_banks.R.
 
 Attribution and licence information are repeated in the dataset's own help
 page; see ?beck_banks.
-
-
-Data not bundled
-----------------
-
-The district-level NREGS panel of Cook and Shah (2022) is not included in
-this package, because no redistribution licence has been identified for it.
-inst/scripts/get_cook_shah_nregs.R retrieves and prepares it from the
-author's website at the user's own request. That script is MIT-licensed like
-the rest of the package; the data it downloads are not covered by this
-package's licence.

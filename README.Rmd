@@ -88,9 +88,6 @@ fit_cov$aggregate$CW$estimate
 It contains thirteen always-treated states and is documented as a worked
 example of that pitfall.
 
-The NREGS district panel of Cook and Shah (2022) is not bundled;
-`inst/scripts/get_cook_shah_nregs.R` retrieves and prepares it on request.
-
 ## Citation
 
 ```r

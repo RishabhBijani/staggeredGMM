@@ -55,7 +55,5 @@ First release.
 
 ## Data
 
-* `cook_shah_nregs` is no longer bundled; `inst/scripts/get_cook_shah_nregs.R`
-  retrieves and prepares it on request.
 * `beck_banks` documentation now records its CC BY 4.0 licence and the
   thirteen always-treated states it contains.
