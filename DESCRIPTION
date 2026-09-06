@@ -12,10 +12,7 @@ Authors@R: c(
     )
 Description: Estimates cohort-by-time average treatment effects under
     staggered treatment adoption by the generalized method of moments.
-    Only clean two-by-two difference-in-differences comparisons, against
-    never-treated or not-yet-treated control cohorts, enter the moment
-    system; already-treated controls are excluded as algebraically
-    redundant. Three weighting schemes are provided, corresponding to a
+    Three weighting schemes are provided, corresponding to a
     pooled stationary covariance, a cohort-specific stationary covariance,
     and an unrestricted within-cohort covariance. Optional adjustment for
     baseline covariates by outcome regression, and a serial-correlation

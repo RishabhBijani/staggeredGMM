@@ -2,11 +2,7 @@
 #'
 #' Estimates cohort-by-time average treatment effects (CATTs) under staggered
 #' treatment adoption by the generalized method of moments, following Arora
-#' and Bijani (2026). Only clean two-by-two difference-in-differences
-#' comparisons -- against never-treated or not-yet-treated control cohorts --
-#' enter the moment system. Comparisons against already-treated controls are
-#' exact linear combinations of the clean ones and are therefore never
-#' formed.
+#' and Bijani (2026).
 #'
 #' @param data A data frame with one row per unit-period.
 #' @param yname Character. Name of the outcome column. Must be numeric;
@@ -33,16 +29,8 @@
 #'   adjustment of Section 4.5 of the paper is applied, so that parallel
 #'   trends need hold only conditional on `covar`.
 #' @param max_iter Integer. Maximum number of iterated-GMM reweighting steps.
-#'   The default is generous because the iteration can converge linearly at a
-#'   slow rate: on `sim_panel`, `weighting = "cohort_toeplitz"` needs 86
-#'   steps. Iterating to convergence is not required for asymptotic
-#'   efficiency, since the two-step and iterated estimators are
-#'   asymptotically equivalent, so a small value is a legitimate choice when
-#'   speed matters; the simulations in Arora and Bijani (2026) used 10.
 #' @param tol Numeric. Convergence tolerance on the largest absolute change
-#'   in any CATT estimate between successive iterations. Note that the
-#'   aggregate ATT typically stabilises several decimal places earlier than
-#'   the individual effects do.
+#'   in any CATT estimate between successive iterations.
 #'
 #' @section Data requirements:
 #' The following conditions are checked before any estimation, and each
@@ -76,8 +64,8 @@
 #'
 #' @section Partial identification:
 #' A cohort-by-time effect with no clean comparison is not estimable. Such
-#' cells are reported with `estimate = NA` and `identified = FALSE`, never as
-#' a precisely-estimated zero. Where an unidentified cell carries positive
+#' cells are reported with `estimate = NA` and `identified = FALSE`. Where an
+#' unidentified cell carries positive
 #' aggregation weight the corresponding aggregate is `NA`, and an
 #' identified-subset aggregate renormalised over the estimable cells is
 #' reported alongside it, with the share of weight it covers.
@@ -92,32 +80,10 @@
 #' returned estimates are the identity-weighted seed rather than a GMM
 #' estimate under the requested weighting. That always raises a warning.
 #'
-#' The requirement is one of rank. Each cohort's estimated covariance is
-#' built from that cohort's residual vectors, so its rank cannot exceed
-#' \eqn{\min(N_g, T-1)}. Under `weighting = "unrestricted"` the weight's
-#' total rank is therefore bounded by \eqn{\sum_g \min(N_g, T-1)}, and the
-#' normal equations are singular unless that comfortably exceeds the number
-#' of identified effects. The bound is necessary rather than sufficient:
-#' equality leaves no margin and fails in practice. Where it binds, the
-#' warning reports the number of moment directions the weight actually
-#' supported.
-#'
 #' When `solve_ok` is `TRUE` but `converged` is `FALSE`, the iteration ran
 #' and did not settle; the estimates are the last valid iterate. That warns
 #' for the two Toeplitz weightings but not for `"unrestricted"`, where slow
 #' convergence is routine.
-#'
-#' @section Covariates and the weighting matrix:
-#' The covariate adjustment enters the moment vector only. The residuals from
-#' which the covariance model is estimated are taken after sweeping out unit
-#' and period fixed effects, which absorb any time-invariant covariate
-#' exactly. Where a covariate has a time-varying loading -- the case in which
-#' the outcome-regression adjustment does anything at all -- that component
-#' remains in the residuals and inflates the estimated persistence. Point
-#' estimates are unaffected, since the weight governs efficiency only, but
-#' the cost is visible in the iteration: on `sim_panel`, whose covariates
-#' carry time-varying loadings, `weighting = "cohort_toeplitz"` needs 86
-#' steps to converge, against 11 on the same design with those terms removed.
 #'
 #' @return An object of class `staggered_gmm`: a list with components
 #'   `call`, `weighting`, `coefficients`, `vcov`, `catt`, `aggregate`,

@@ -235,9 +235,7 @@ validate_staggered_panel <- function(data, yname, tname, idname, gname,
          sprintf("first observed period (%d). ", T_min),
          "Such units have no pre-treatment period, so none of their ",
          "cohort-by-time effects is identified, and including them would ",
-         "silently contaminate the aggregate. Drop them, extend the panel ",
-         "backwards, or recode them as never-treated (0) only if that is ",
-         "substantively correct.", call. = FALSE)
+         "silently contaminate the aggregate.", call. = FALSE)
   }
 
   treated_cohorts <- ucoh[ucoh > T_min & ucoh <= T_max]

@@ -74,13 +74,6 @@ They do not generally return the same numbers: the system is
 over-identified, so a different weighting matrix gives a different
 estimate.
 
-`"unrestricted"` needs the panel to support it. Each cohort’s covariance
-is built from that cohort’s residual vectors, so its rank cannot exceed
-`min(N_g, T - 1)`, and the weight’s rank is bounded by that summed over
-groups. Unless the total comfortably exceeds the number of effects, no
-weighted step completes and the estimator warns that it has fallen back
-to the identity-weighted seed.
-
 ## Testing the identifying assumptions
 
 ``` r
@@ -94,9 +87,6 @@ gmm_j_test(fit)
 #>   Moments           14
 #> 
 #>   J = 9.0396, df = 14, p = 0.8285
-#> 
-#> A clean result is necessary but not sufficient: post-treatment
-#> parallel trends is untestable.
 ```
 
 ## Baseline covariates

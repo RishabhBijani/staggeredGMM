@@ -27,9 +27,7 @@ proposed in
 
 Only *clean* two-by-two difference-in-differences comparisons enter the
 moment system: a treated cohort against a never-treated group, or against a
-cohort not yet treated at the relevant period. Comparisons against
-already-treated controls are exact linear combinations of the clean ones and
-are never formed.
+cohort not yet treated at the relevant period.
 
 This vignette covers how to call the estimator and what it returns. For the
 methodology, the choice among the three weighting schemes, and the
@@ -37,8 +35,7 @@ simulation and empirical evidence, see the paper.
 
 ## Data coding conventions
 
-`gmm_staggered()` is strict about its input, and rejects rather than coerces.
-The requirements are:
+`gmm_staggered()` has the following input requirements:
 
 * one row per unit-period, with no duplicated unit-period pair;
 * a numeric outcome (factor, character and logical outcomes are errors);
@@ -47,7 +44,9 @@ The requirements are:
 * no period absent from the whole panel;
 * no unit treated at or before the first observed period.
 
-Missing outcomes are allowed. Missing unit ids, periods or cohorts are not.
+A missing outcome is fine, and is what an unbalanced panel looks like. A
+missing unit id, period or cohort is an error, since the row cannot be placed
+in the panel at all.
 
 Two conventions are worth stating explicitly. First, a unit whose cohort
 falls *after* the last observed period is untreated throughout the window,
@@ -136,16 +135,10 @@ and still exhaust `max_iter` without converging. `termination` says why the
 iteration stopped.
 
 `max_iter` defaults to 100 because the iteration can converge linearly at a
-slow rate. On this design `weighting = "cohort_toeplitz"` needs 86 steps,
-though the aggregate ATT is stable to five significant figures well before
-that — `tol` applies to the individual effects, which settle later.
+slow rate.
 
-The unrestricted weighting is a stronger constraint than it looks. Each
-cohort's covariance is built from that cohort's residual vectors, so its rank
-cannot exceed `min(N_g, T - 1)`, and the weight's total rank is bounded by
-that quantity summed over groups. Unless the total comfortably exceeds the
-number of effects, the normal equations are singular and no weighted step
-completes at all. `sim_panel` has 60 units and 90 effects, so it does not qualify:
+On this design the unrestricted weighting cannot complete a weighted step at
+all:
 
 ```{r unrestricted}
 fit_u <- gmm_staggered(sim_panel, yname = "y", tname = "year",
@@ -241,14 +234,6 @@ number of units is small:
 ```{r jtest-full}
 gmm_j_test(fit, type = "full")
 ```
-
-Two cautions. Estimation and testing are deliberately decoupled -- the
-estimate uses the full moment system, the test a local window -- because
-using a pre-trends test to gate an estimate distorts its conditional
-distribution (Roth, 2022). And the test speaks only to pre-treatment
-periods: post-treatment parallel trends, the assumption that actually
-identifies the effects, is untestable, so a clean result is necessary but
-not sufficient.
 
 The test requires a never-treated group, since the event-study basis it uses
 differences every cohort against a common never-treated reference.

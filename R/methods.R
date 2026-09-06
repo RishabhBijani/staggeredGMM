@@ -195,7 +195,5 @@ print.staggered_gmm_jtest <- function(x, ...) {
   cat("\n")
   cat(sprintf("  J = %.4f, df = %d, p = %.4f\n",
               x$statistic, x$df, x$p_value))
-  cat("\nA clean result is necessary but not sufficient: post-treatment\n")
-  cat("parallel trends is untestable.\n")
   invisible(x)
 }

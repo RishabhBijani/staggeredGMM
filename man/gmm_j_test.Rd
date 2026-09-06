@@ -54,14 +54,6 @@ nominal size across sample sizes at essentially no cost in power, since a
 differential trend or an anticipation effect is already visible just
 before treatment. \code{type = "full"} uses every placebo moment and is
 well-sized only when the number of units is comfortably large.
-
-Estimation and testing are deliberately decoupled: the estimate uses the
-full moment system while the test uses the local window. Using a
-pre-trends test to gate an estimate distorts the estimator's conditional
-distribution (Roth, 2022), the more so the stronger their correlation.
-The test also speaks only to pre-treatment periods. Post-treatment
-parallel trends, the assumption that actually identifies the effects, is
-untestable, so a clean result is necessary but not sufficient.
 }
 \examples{
 fit <- gmm_staggered(sim_panel, yname = "y", tname = "year",
@@ -72,8 +64,4 @@ gmm_j_test(fit)
 \references{
 Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
 Staggered Timing and Non-Spherical Errors." \doi{10.2139/ssrn.6558759}
-
-Roth, J. (2022). "Pretest with Caution: Event-Study Estimates after
-Testing for Parallel Trends." \emph{American Economic Review: Insights}
-4(3), 305-322.
 }
