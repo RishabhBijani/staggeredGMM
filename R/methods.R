@@ -88,6 +88,10 @@ summary.staggered_gmm <- function(object, ...) {
     if (object$controls$cov_n_fallback > 0L)
       cat(sprintf("  %d comparison(s) fell back to the unconditional form.\n",
                   object$controls$cov_n_fallback))
+    cat(strwrap(paste(
+      "Note: gmm_j_test() does not adjust for these covariates. It tests",
+      "UNCONDITIONAL parallel trends, not the covariate-conditional parallel",
+      "trends assumed by this fit."), width = 78, exdent = 6), sep = "\n")
   }
   invisible(object)
 }
@@ -182,7 +186,7 @@ confint.staggered_gmm <- function(object, parm, level = 0.95, ...) {
 #' print(gmm_j_test(fit))
 #' @export
 print.staggered_gmm_jtest <- function(x, ...) {
-  cat("Specification test for parallel trends and no anticipation\n")
+  cat("Specification test for unconditional parallel trends and no anticipation\n")
   cat("Hansen J on the pre-treatment placebo restrictions\n\n")
   cat(sprintf("  Restriction set   %s\n",
               if (identical(x$type, "local"))
@@ -195,5 +199,18 @@ print.staggered_gmm_jtest <- function(x, ...) {
   cat("\n")
   cat(sprintf("  J = %.4f, df = %d, p = %.4f\n",
               x$statistic, x$df, x$p_value))
+  if (length(x$covar)) {
+    rule <- strrep("-", 78)
+    cat("\n", rule, "\n", sep = "")
+    cat("IMPORTANT: this model adjusts for covariates, but this test does not.\n")
+    cat(strwrap(paste(
+      "The placebo moments are unadjusted group means, so the test checks",
+      "UNCONDITIONAL parallel trends and no anticipation. It does NOT test the",
+      "covariate-conditional parallel trends assumption under which the effects",
+      "were estimated. A rejection can reflect differences in covariates across",
+      "cohorts rather than a failure of that assumption, and a non-rejection does",
+      "not validate it."), width = 78), sep = "\n")
+    cat(rule, "\n", sep = "")
+  }
   invisible(x)
 }

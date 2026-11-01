@@ -1,6 +1,6 @@
 Package: staggeredGMM
 Title: GMM Estimation of Treatment Effects Under Staggered Adoption
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person(given = "Rishabh", family = "Bijani",
            email = "rishabhbijani@gmail.com",
@@ -16,8 +16,8 @@ Description: Estimates cohort-by-time average treatment effects under
     pooled stationary covariance, a cohort-specific stationary covariance,
     and an unrestricted within-cohort covariance. Optional adjustment for
     baseline covariates by outcome regression, and a serial-correlation
-    robust over-identification test of parallel trends and no
-    anticipation, are also supported. The methods are described in Arora
+    robust over-identification test of unconditional parallel trends and
+    no anticipation, are also supported. The methods are described in Arora
     and Bijani (2026) <doi:10.2139/ssrn.6558759>.
 License: MIT + file LICENSE
 Encoding: UTF-8

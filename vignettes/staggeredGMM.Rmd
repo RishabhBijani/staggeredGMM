@@ -41,6 +41,9 @@ simulation and empirical evidence, see the paper.
 * a numeric outcome (factor, character and logical outcomes are errors);
 * integer-valued time and cohort columns;
 * the cohort constant within unit, with `0` for never-treated units;
+* if never-treated units are coded `0`, period `0` not after the first
+  observed period (otherwise `0` would also mean "first treated in period 0"; code
+  never-treated units with any value after the last period instead);
 * no period absent from the whole panel;
 * no unit treated at or before the first observed period.
 
@@ -215,6 +218,14 @@ of periods -- too few complete-case control units, or a rank-deficient fit
 -- those comparisons alone revert to the unconditional form, and the count
 is reported in `fit$controls$cov_n_fallback`.
 
+If a covariate has no observed value for any unit of a treated cohort, that
+cohort's covariate mean is undefined and the estimator stops, naming the
+covariate and the cohort.
+
+**The specification test below does not adjust for covariates.** It tests
+unconditional parallel trends, not the covariate-conditional parallel trends
+under which `fit_cov` is estimated; see the next section.
+
 ## Testing the identifying assumptions
 
 The over-identifying restrictions are the pre-treatment placebo moments,
@@ -224,6 +235,19 @@ serial-correlation model.
 
 ```{r jtest}
 gmm_j_test(fit)
+```
+
+**The test is unconditional.** Its placebo moments are unadjusted group
+means, whether or not the fitted model adjusts for covariates. After a fit
+with `covar`, it therefore tests unconditional parallel trends and no
+anticipation, not the covariate-conditional parallel trends assumption under
+which the effects were estimated. If covariates are distributed differently
+across cohorts, the test can reject although conditional parallel trends
+hold, and a non-rejection does not validate the conditional assumption. The
+printed result says so whenever the fit used covariates:
+
+```{r jtest-cov}
+gmm_j_test(fit_cov)
 ```
 
 By default the test uses a local pre-window of three periods before each
@@ -238,49 +262,42 @@ gmm_j_test(fit, type = "full")
 The test requires a never-treated group, since the event-study basis it uses
 differences every cohort against a common never-treated reference.
 
-## A real design, and a coding pitfall
+## Two coding pitfalls
 
-`beck_banks` is a panel of 49 US states over 1976--2006 on bank branch
-deregulation and income inequality. It is also a worked example of the most
-common way a staggered design goes wrong.
+A unit treated at or before the first observed period has no pre-treatment
+period. Recoding the first cohort of `sim_panel` to adopt in period 1 shows
+what happens:
 
-```{r beck-pitfall, error = TRUE}
-gmm_staggered(beck_banks, yname = "ln_gini", tname = "wrkyr",
-              idname = "state", gname = "branch_reform")
+```{r pitfall-always, error = TRUE}
+bad <- sim_panel
+bad$cohort[bad$cohort == 10] <- 1
+gmm_staggered(bad, yname = "y", tname = "year",
+              idname = "unit_id", gname = "cohort")
 ```
 
-Thirteen states deregulated at or before 1976, the first observed year, ten
-of them coded `1960`. They are treated throughout the window and have no
-pre-treatment period, so none of their effects is identified. Silently
-including them would return a plausible-looking aggregate contaminated by
-cells that were never estimated. Restrict to states adopting inside the
-window:
+Silently including such units would return a plausible-looking aggregate
+contaminated by cells that were never estimated, so the estimator stops and
+names the cohort. Drop those units, or restrict to cohorts adopting inside the
+window, before estimating.
 
-```{r beck-fixed}
-dat <- beck_banks[beck_banks$branch_reform > 1976, ]
-fit_beck <- gmm_staggered(dat, yname = "ln_gini", tname = "wrkyr",
-                          idname = "state", gname = "branch_reform")
-fit_beck
+Without a never-treated group, identification rests entirely on
+not-yet-treated controls. Dropping the never-treated units of `sim_panel`:
+
+```{r pitfall-never}
+fit_nyt <- gmm_staggered(sim_panel[sim_panel$cohort != 0, ], yname = "y",
+                         tname = "year", idname = "unit_id",
+                         gname = "cohort")
+table(fit_nyt$catt$identified)
+fit_nyt$aggregate$CW$identified_weight_share
 ```
 
-This design has no never-treated group either, so identification rests
-entirely on not-yet-treated controls. The consequence is visible in the
-output: the last cohort to adopt has no later cohort to serve as its
-control, so none of its effects is identified, and neither is any cell at a
-period after the final adoption year. Of the 380 cohort-by-time cells, 144
-are unestimable.
-
-```{r beck-identified}
-table(fit_beck$catt$identified)
-fit_beck$aggregate$CW$identified_weight_share
-```
-
-Because unidentified cells carry positive weight, the aggregate itself is
-`NA` and the identified-subset figure is reported instead. That is the
-intended behaviour: an aggregate over a set of cells more than a third of
-which were never estimated would not mean what its name suggests. If a
-never-treated group is available in your own application, supplying it
-identifies far more of the surface.
+The last cohort to adopt has no later cohort to serve as its control, so none
+of its effects is identified, and neither is any cell at or after its
+adoption period: only 30 of the 90 cells are estimable. Because unidentified
+cells carry positive weight, the aggregate itself is `NA` and the
+identified-subset figure is reported with the share of weight it covers. An
+aggregate over a set of cells two thirds of which were never estimated would
+not mean what its name suggests.
 
 ## Citation
 

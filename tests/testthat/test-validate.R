@@ -170,3 +170,22 @@ test_that("a single period is rejected", {
   expect_error(gmm_staggered(one, "y", "year", "unit_id", "cohort"),
                "two distinct time periods")
 })
+
+
+test_that("period 0 inside the window is rejected when never-treated are coded 0", {
+  dat <- make_test_panel(effects = tiny_effects())
+  dat$year <- dat$year - 2L
+  dat$cohort[dat$cohort > 0L] <- dat$cohort[dat$cohort > 0L] - 2L
+  expect_error(gmm_staggered(dat, "y", "year", "unit_id", "cohort"),
+               "period 0 lies inside the observed window")
+
+  # never-treated recoded after the last period: accepted, same estimates
+  ok <- dat
+  ok$cohort[ok$cohort == 0L] <- max(ok$year) + 1L
+  fit_shift <- gmm_staggered(ok, "y", "year", "unit_id", "cohort")
+  fit_base  <- gmm_staggered(make_test_panel(effects = tiny_effects()),
+                             "y", "year", "unit_id", "cohort")
+  expect_equal(unname(fit_shift$coefficients), unname(fit_base$coefficients),
+               tolerance = 1e-10)
+  expect_identical(fit_shift$controls$n_never_late, 2L)
+})

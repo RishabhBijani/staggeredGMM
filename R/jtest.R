@@ -1,4 +1,4 @@
-#' Specification test for parallel trends and no anticipation
+#' Specification test for unconditional parallel trends and no anticipation
 #'
 #' A serial-correlation robust joint test of the identifying assumptions,
 #' following Section 4.4 of Arora and Bijani (2026).
@@ -33,6 +33,16 @@
 #' before treatment. `type = "full"` uses every placebo moment and is
 #' well-sized only when the number of units is comfortably large.
 #'
+#' **The test is unconditional.** The placebo moments are unadjusted group
+#' means, whether or not the fitted model adjusts for covariates. After a fit
+#' with `covar`, the test therefore checks unconditional parallel trends and
+#' no anticipation; it does not test the covariate-conditional parallel
+#' trends assumption under which the effects were estimated. If covariates
+#' are distributed differently across cohorts, the test can reject although
+#' conditional parallel trends hold, and a non-rejection does not validate
+#' the conditional assumption. The printed result repeats this warning
+#' whenever the fit used covariates.
+#'
 #' @param object A fitted [gmm_staggered()] object.
 #' @param type Character. `"local"` (default) restricts the test to placebo
 #'   moments within `window` periods before each cohort's adoption; `"full"`
@@ -42,7 +52,9 @@
 #'
 #' @return An object of class `staggered_gmm_jtest`, a list with components
 #'   `statistic`, `df`, `p_value`, `type`, `window`, `base_period`,
-#'   `n_moments` and `moments` (the placebo moment table).
+#'   `n_moments`, `moments` (the placebo moment table), `scope` (always
+#'   `"unconditional"`) and `covar` (the covariates of the fitted model, or
+#'   `NULL`).
 #'
 #' @references
 #' Arora, P. and Bijani, R. (2026). "Estimating Treatment Effects under
@@ -189,7 +201,9 @@ gmm_j_test <- function(object, type = c("local", "full"), window = 3L) {
                              event_time = mom_t - mom_g,
                              moment = as.numeric(p_hat),
                              row.names = NULL),
-    weighting   = object$weighting
+    weighting   = object$weighting,
+    scope       = "unconditional",
+    covar       = object$controls$covar
   )
   class(out) <- "staggered_gmm_jtest"
   out

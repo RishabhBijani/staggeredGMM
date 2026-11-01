@@ -122,3 +122,14 @@ test_that("adjustment falls back per triple when unidentifiable", {
   expect_gt(fit$controls$cov_n_fallback, 0L)
   expect_true(all(is.finite(fit$catt$estimate[fit$catt$identified])))
 })
+
+
+test_that("a covariate missing for a whole treated cohort is an error", {
+  dat <- sim_panel
+  dat$x1[dat$cohort == 13L] <- NA
+  expect_error(
+    suppressWarnings(gmm_staggered(dat, "y", "year", "unit_id", "cohort",
+                                   covar = c("x1", "x2"))),
+    "x1 in cohort 13"
+  )
+})

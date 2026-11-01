@@ -48,7 +48,8 @@ errors otherwise. \code{FALSE} excludes them, and warns if any are present.}
 \item{covar}{Optional character vector of baseline (pre-treatment,
 time-invariant) covariate columns. When supplied, the outcome-regression
 adjustment of Section 4.5 of the paper is applied, so that parallel
-trends need hold only conditional on \code{covar}.}
+trends need hold only conditional on \code{covar}. Note that \code{\link[=gmm_j_test]{gmm_j_test()}}
+does not adjust for \code{covar}: it tests unconditional parallel trends.}
 
 \item{max_iter}{Integer. Maximum number of iterated-GMM reweighting steps.}
 
@@ -81,7 +82,12 @@ missing individual periods.
 \item No unit is treated at or before the first observed period. Such units
 have no pre-treatment period, so none of their effects is identified,
 and silently including them contaminates the aggregate.
+\item If never-treated units are coded \code{0}, period \code{0} does not lie after the
+first observed period; otherwise \code{0} would also mean "first treated in period
+0". Code never-treated units with a value after the last period instead.
 \item At least one cohort adopts strictly inside the observed window.
+\item With \code{covar}, every covariate is observed for at least one unit of each
+treated cohort, so that the cohort's covariate mean is defined.
 }
 
 Units whose cohort falls after the last observed period are never treated

@@ -27,7 +27,8 @@
 #' @param covar Optional character vector of baseline (pre-treatment,
 #'   time-invariant) covariate columns. When supplied, the outcome-regression
 #'   adjustment of Section 4.5 of the paper is applied, so that parallel
-#'   trends need hold only conditional on `covar`.
+#'   trends need hold only conditional on `covar`. Note that [gmm_j_test()]
+#'   does not adjust for `covar`: it tests unconditional parallel trends.
 #' @param max_iter Integer. Maximum number of iterated-GMM reweighting steps.
 #' @param tol Numeric. Convergence tolerance on the largest absolute change
 #'   in any CATT estimate between successive iterations.
@@ -46,7 +47,12 @@
 #' * No unit is treated at or before the first observed period. Such units
 #'   have no pre-treatment period, so none of their effects is identified,
 #'   and silently including them contaminates the aggregate.
+#' * If never-treated units are coded `0`, period `0` does not lie after the
+#'   first observed period; otherwise `0` would also mean "first treated in period
+#'   0". Code never-treated units with a value after the last period instead.
 #' * At least one cohort adopts strictly inside the observed window.
+#' * With `covar`, every covariate is observed for at least one unit of each
+#'   treated cohort, so that the cohort's covariate mean is defined.
 #'
 #' Units whose cohort falls after the last observed period are never treated
 #' within the window and are therefore pooled with the never-treated group as
@@ -198,6 +204,22 @@ gmm_staggered <- function(data, yname, tname, idname, gname,
     }
   }
   Delta <- treated_change - control_term
+  if (anyNA(Delta)) {
+    bad_g <- sort(unique(contrasts_df$g[is.na(Delta)]))
+    cm    <- coh_covmeans[as.character(bad_g), , drop = FALSE]
+    xcols <- setdiff(colnames(cm), "(Intercept)")
+    affected <- unlist(lapply(seq_along(bad_g), function(i) {
+      miss <- xcols[is.na(cm[i, xcols])]
+      if (length(miss)) paste0(miss, " in cohort ", bad_g[i]) else character(0)
+    }))
+    stop("A covariate has no observed value for any unit of a treated cohort, ",
+         "so that cohort's covariate mean is undefined and its ",
+         sprintf("covariate-adjusted comparisons (%d of %d) cannot be formed. ",
+                 sum(is.na(Delta)), N_2x2),
+         sprintf("Affected: %s. ", .preview(affected, 8L)),
+         "Drop the covariate, or supply it for at least one unit of each ",
+         "treated cohort.", call. = FALSE)
+  }
 
   ## ---- identification -----------------------------------------------------
   Q_H <- build_Q_H(contrasts_df$focal_col, N_beta)
