@@ -131,3 +131,20 @@ test_that("the result prints", {
   expect_output(print(j), "Specification test")
   expect_output(print(j), "df =")
 })
+
+
+test_that("the test is reported as unconditional, with a warning after covar", {
+  fit <- gmm_staggered(sim_panel, "y", "year", "unit_id", "cohort")
+  j <- gmm_j_test(fit)
+  expect_identical(j$scope, "unconditional")
+  expect_null(j$covar)
+  expect_false(any(grepl("IMPORTANT", capture.output(print(j)))))
+
+  fit_cov <- gmm_staggered(sim_panel, "y", "year", "unit_id", "cohort",
+                           covar = c("x1", "x2"))
+  j_cov <- gmm_j_test(fit_cov)
+  expect_identical(j_cov$covar, c("x1", "x2"))
+  out <- capture.output(print(j_cov))
+  expect_true(any(grepl("IMPORTANT", out)))
+  expect_true(any(grepl("UNCONDITIONAL", out)))
+})

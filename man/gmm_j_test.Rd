@@ -2,7 +2,7 @@
 % Please edit documentation in R/jtest.R
 \name{gmm_j_test}
 \alias{gmm_j_test}
-\title{Specification test for parallel trends and no anticipation}
+\title{Specification test for unconditional parallel trends and no anticipation}
 \usage{
 gmm_j_test(object, type = c("local", "full"), window = 3L)
 }
@@ -19,7 +19,9 @@ when \code{type = "full"}.}
 \value{
 An object of class \code{staggered_gmm_jtest}, a list with components
 \code{statistic}, \code{df}, \code{p_value}, \code{type}, \code{window}, \code{base_period},
-\code{n_moments} and \code{moments} (the placebo moment table).
+\code{n_moments}, \code{moments} (the placebo moment table), \code{scope} (always
+\code{"unconditional"}) and \code{covar} (the covariates of the fitted model, or
+\code{NULL}).
 }
 \description{
 A serial-correlation robust joint test of the identifying assumptions,
@@ -54,6 +56,16 @@ nominal size across sample sizes at essentially no cost in power, since a
 differential trend or an anticipation effect is already visible just
 before treatment. \code{type = "full"} uses every placebo moment and is
 well-sized only when the number of units is comfortably large.
+
+\strong{The test is unconditional.} The placebo moments are unadjusted group
+means, whether or not the fitted model adjusts for covariates. After a fit
+with \code{covar}, the test therefore checks unconditional parallel trends and
+no anticipation; it does not test the covariate-conditional parallel
+trends assumption under which the effects were estimated. If covariates
+are distributed differently across cohorts, the test can reject although
+conditional parallel trends hold, and a non-rejection does not validate
+the conditional assumption. The printed result repeats this warning
+whenever the fit used covariates.
 }
 \examples{
 fit <- gmm_staggered(sim_panel, yname = "y", tname = "year",

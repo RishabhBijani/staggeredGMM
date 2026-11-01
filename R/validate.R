@@ -227,6 +227,20 @@ validate_staggered_panel <- function(data, yname, tname, idname, gname,
          call. = FALSE)
   }
 
+  if (T_min < 0L && T_max >= 0L && any(cohort_of == 0L)) {
+    stop(sprintf("`%s` (cohort) codes never-treated units as 0, but period 0 ",
+                 gname),
+         sprintf("lies inside the observed window (%d to %d), so 0 could also ",
+                 T_min, T_max),
+         "mean first treated in period 0. Recode never-treated units to a ",
+         sprintf("value after the last period (for example %d), which is read ",
+                 T_max + 1L),
+         sprintf("as never treated within the window, or shift `%s` and the ",
+                 tname),
+         "treated cohort values by the same amount so that every period is ",
+         "positive.", call. = FALSE)
+  }
+
   always <- ucoh[ucoh > 0L & ucoh <= T_min]
   if (length(always) > 0L) {
     n_always <- sum(cohort_of %in% always)

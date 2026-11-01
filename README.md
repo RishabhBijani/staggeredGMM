@@ -106,10 +106,6 @@ fit_cov$aggregate$CW$estimate
 ## Bundled data
 
 `sim_panel` is a simulated panel used in the examples and tests.
-`beck_banks` is a real state-level panel from Beck, Levine and Levkov
-(2010), included under CC BY 4.0; see `?beck_banks` and
-`inst/LICENSE.note`. It contains thirteen always-treated states and is
-documented as a worked example of that pitfall.
 
 ## Citation
 

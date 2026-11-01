@@ -1,35 +1,23 @@
 ## Submission
 
-First submission of staggeredGMM.
+This is an update of staggeredGMM, from 0.1.0 to 0.2.0.
+
+* Two input-validation bug fixes in `gmm_staggered()` (see NEWS.md).
+* `gmm_j_test()` output and documentation now state that the test is a test
+  of unconditional parallel trends.
+* The third-party dataset `beck_banks` and its licence note
+  (inst/LICENSE.note) have been removed. The package now bundles only
+  simulated data and contains only original, MIT-licensed material.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-The note is the standard one for a first submission:
-
-    Maintainer: 'Rishabh Bijani <rishabhbijani@gmail.com>'
-    New submission
+0 errors | 0 warnings | 0 notes
 
 ## Test environments
 
-* local macOS 15.6 (aarch64), R 4.5.1 -- OK
-* R-hub v2: linux (R-devel), macOS (R-devel), Windows (R-devel) -- OK on all
-  three, checked with --as-cran and error-on = "warning"
-* GitHub Actions: ubuntu-latest (release, devel, oldrel-1), macOS-latest
-  (release), windows-latest (release) -- OK
-
-## Notes on bundled data
-
-The package bundles one third-party dataset, `beck_banks`, derived from the
-replication data of Beck, Levine and Levkov (2010) deposited by the authors
-at DataverseNL (doi:10.34894/B1K9OU) under the Creative Commons Attribution
-4.0 International licence, which permits redistribution with attribution.
-
-The only change from the deposited data is a selection of columns; no values
-were altered, recoded or derived. The attribution, the licence and the change
-made are recorded in inst/LICENSE.note and on the dataset's help page
-(?beck_banks). All other package content is original and MIT-licensed.
+* local Linux (x86_64), R 4.3.3, R CMD check --as-cran -- OK
+* win-builder (R-devel, R-release) -- to be run before submission
+* R-hub v2: linux, macOS and Windows (R-devel) -- to be run before submission
 
 ## Downstream dependencies
 

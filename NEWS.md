@@ -1,3 +1,31 @@
+# staggeredGMM 0.2.0
+
+## Breaking changes
+
+* The `beck_banks` dataset has been removed, together with its licence note.
+  The examples and the vignette now illustrate the always-treated error and
+  estimation without a never-treated group on `sim_panel`.
+
+## Bug fixes
+
+* When never-treated units are coded `0` and period `0` lies inside the
+  observed window, `gmm_staggered()` now stops with an error. Previously
+  `0` was read both as a treated cohort, with cohort-by-time effects
+  estimated for it, and as the never-treated control group. Code
+  never-treated units with any value after the last period instead.
+* When a covariate has no observed value for any unit of a treated cohort,
+  `gmm_staggered()` now stops with an error naming the covariate and the
+  cohort. Previously every estimate was returned as `NA`, with a misleading
+  warning that no weighted step could be completed.
+
+## Documentation and output
+
+* `gmm_j_test()` is now explicitly a test of *unconditional* parallel trends.
+  Its placebo moments were never covariate-adjusted; after a fit with
+  `covar`, the printed result now warns that it does not test the
+  covariate-conditional parallel trends assumption, `summary()` of such a
+  fit says the same, and the returned object records `scope` and `covar`.
+
 # staggeredGMM 0.1.0
 
 First release.
